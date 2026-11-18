@@ -1,4 +1,4 @@
-# Kampüs 360
+# UniGo
 
 Öğrenciler için kampüs uygulaması prototipi (v0.1): ders programı, öğrenci pazar yeri ve günlük özet ekranı.
 
