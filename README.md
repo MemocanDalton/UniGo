@@ -9,7 +9,7 @@
 - Karanlık mod desteği
 
 ## Çalıştırma
-`index.html` dosyasını tarayıcıda açmanız yeterli. Kurulum gerekmez.
+`UniGO MVP.html` dosyasını tarayıcıda açmanız yeterli. Kurulum gerekmez.
 
 ## Notlar
 - Bu sürümde veriler yalnızca kullanıcının tarayıcısında (localStorage) saklanır, cihazlar arasında paylaşılmaz.
