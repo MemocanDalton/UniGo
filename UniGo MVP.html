@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UniGo MVP</title>
+<style>
+:root{--bg:#F5F6FA;--card:#fff;--ink:#12161F;--mute:#5B6475;--line:#E3E6EE;--acc:#1F4FD8;--accT:#fff;--soft:#E8EDFB;--f:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1218;--card:#181C25;--ink:#EEF1F7;--mute:#A3ACBD;--line:#2A303C;--acc:#8CA8FF;--accT:#0B1020;--soft:#20283A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1218;--card:#181C25;--ink:#EEF1F7;--mute:#A3ACBD;--line:#2A303C;--acc:#8CA8FF;--accT:#0B1020;--soft:#20283A;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.4 var(--f)}
+button,input,select,textarea{font-family:var(--f)}
+#app{max-width:480px;margin:0 auto;padding:24px 16px 104px}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:15px;margin:22px 0 10px}
+.mut{color:var(--mute);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 10px}
+.hero{background:var(--acc);color:var(--accT);margin-top:16px}.hero .big{font-size:20px;font-weight:700;margin:4px 0}
+.row{display:flex;gap:12px;align-items:flex-start}.t{width:48px;font-weight:600;font-size:13px;color:var(--mute)}
+.btn{min-height:44px;border:0;border-radius:12px;background:var(--acc);color:var(--accT);font:600 14px var(--f);padding:0 16px;cursor:pointer}
+.btn.g{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0}
+.chip{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px var(--f);cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+label{display:block;font:600 12px var(--f);color:var(--mute);margin-top:10px}
+input,select,textarea{display:block;width:100%;box-sizing:border-box;min-height:44px;margin-top:4px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:15px}
+.tag{background:var(--soft);color:var(--ink);border-radius:8px;padding:2px 8px;font-size:12px;font-weight:600}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(8px + env(safe-area-inset-bottom,0px))}
+nav div{display:flex;max-width:480px;margin:0 auto}
+nav button{flex:1;min-height:48px;border:0;background:none;color:var(--mute);font:600 12px var(--f);cursor:pointer}
+nav button.on{color:var(--acc)}
+#err{color:#B42318;font-size:13px;min-height:18px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #err{color:#FF8A80}}
+:root[data-theme="dark"] #err{color:#FF8A80}
+</style></head><body>
+<div id="app"></div><nav><div id="nav"></div></nav>
+<script>
+const K='k360',G=['Pzt','Sal','Çar','Per','Cum'],C=['Kitap','Elektronik','Ev arkadaşı','Diğer'];
+let S={ad:'',bolum:'',dersler:[],ilanlar:[]},tab='home',cat='Tümü',q='',form=null,wipe=0;
+let gun=(()=>{const d=new Date().getDay();return d>=1&&d<=5?d-1:0})();
+try{const r=localStorage.getItem(K);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const byBas=(a,b)=>a.bas.localeCompare(b.bas);
+function dersCard(x,del){return `<div class="card row"><div class="t">${x.bas}<br>${x.bit}</div><div style="flex:1"><b>${esc(x.ad)}</b><div class="mut">${esc(x.sinif)||'Sınıf girilmedi'}</div></div>${del?`<button class="chip" data-a="dsil" data-i="${x.id}" aria-label="Dersi sil">Sil</button>`:''}</div>`}
+function ilanCard(x,del){const p=/^\d+$/.test(x.fiyat)?x.fiyat+' ₺':esc(x.fiyat);return `<div class="card"><div class="row"><span class="tag">${esc(x.kat)}</span><span style="flex:1"></span><b>${p}</b></div><div style="margin-top:8px"><b>${esc(x.baslik)}</b></div>${x.acik?`<div class="mut">${esc(x.acik)}</div>`:''}<div class="row" style="margin-top:8px;align-items:center"><span class="mut" style="flex:1">İletişim: ${esc(x.iletisim)}</span>${del?`<button class="chip" data-a="isil" data-i="${x.id}" aria-label="İlanı sil">Sil</button>`:''}</div></div>`}
+function home(){const d=new Date(),wd=d.getDay(),ok=wd>=1&&wd<=5,td=ok?S.dersler.filter(x=>x.gun==wd-1).sort(byBas):[];
+const now=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2),nx=td.find(x=>x.bit>now);
+return `<h1>UniGo</h1><div class="mut">${S.ad?'Merhaba '+esc(S.ad)+' · ':''}${d.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'})}</div>
+<div class="card hero">${nx?`<div>Sıradaki ders · ${nx.bas}</div><div class="big">${esc(nx.ad)}</div><div>${esc(nx.sinif)||'Sınıf girilmedi'} · ${nx.bas}–${nx.bit}</div>`:`<div class="big">${td.length?'Bugünkü dersler bitti':'Bugün için ders yok'}</div><div>Program sekmesinden ders ekleyebilirsin.</div>`}</div>
+<h2>Bugünkü dersler</h2>${td.map(x=>dersCard(x)).join('')||'<p class="mut">Kayıtlı ders yok.</p>'}
+<h2>Pazar yerinde yeni</h2>${S.ilanlar.slice(0,2).map(x=>ilanCard(x)).join('')||'<p class="mut">Henüz ilan yok.</p>'}`}
+function prog(){const L=S.dersler.filter(x=>x.gun==gun).sort(byBas);
+return `<h1>Ders programı</h1><div class="chips">${G.map((g,i)=>`<button class="chip${i==gun?' on':''}" data-a="gun" data-i="${i}">${g}</button>`).join('')}</div>
+${L.map(x=>dersCard(x,1)).join('')||'<p class="mut">Bu gün için ders eklenmedi.</p>'}
+${form=='ders'?`<form id="f-ders" class="card"><b>Yeni ders</b><label>Ders adı<input name="ad" required maxlength="60"></label><label>Gün<select name="gun">${G.map((g,i)=>`<option value="${i}"${i==gun?' selected':''}>${g}</option>`).join('')}</select></label><label>Başlangıç<input type="time" name="bas" required></label><label>Bitiş<input type="time" name="bit" required></label><label>Sınıf<input name="sinif" maxlength="30"></label><div id="err"></div><div class="row"><button class="btn">Kaydet</button><button type="button" class="btn g" data-a="close">Vazgeç</button></div></form>`:`<button class="btn" data-a="open" data-i="ders">Ders ekle</button>`}`}
+function lst(){const k=q.toLowerCase(),L=S.ilanlar.filter(x=>(cat=='Tümü'||x.kat==cat)&&(x.baslik+' '+x.acik+' '+x.kat).toLowerCase().includes(k));return L.map(x=>ilanCard(x,1)).join('')||'<p class="mut">İlan bulunamadı.</p>'}
+function paz(){return `<h1>Pazar yeri</h1><label>İlan ara<input id="q" type="search" value="${esc(q)}" placeholder="Kitap, eşya, ev arkadaşı"></label>
+<div class="chips">${['Tümü',...C].map(c=>`<button class="chip${c==cat?' on':''}" data-a="cat" data-i="${c}">${c}</button>`).join('')}</div><div id="list">${lst()}</div>
+${form=='ilan'?`<form id="f-ilan" class="card"><b>Yeni ilan</b><label>Başlık<input name="baslik" required maxlength="80"></label><label>Kategori<select name="kat">${C.map(c=>`<option>${c}</option>`).join('')}</select></label><label>Fiyat (₺)<input name="fiyat" required maxlength="20" placeholder="Örn. 150"></label><label>İletişim<input name="iletisim" required maxlength="60" placeholder="Telefon, e-posta veya Instagram"></label><label>Açıklama<textarea name="acik" rows="3" maxlength="300"></textarea></label><div class="row" style="margin-top:12px"><button class="btn">Yayınla</button><button type="button" class="btn g" data-a="close">Vazgeç</button></div></form>`:`<button class="btn" data-a="open" data-i="ilan">İlan ver</button>`}`}
+function prof(){return `<h1>Profil</h1><form id="f-profil" class="card"><label>Ad<input name="ad" value="${esc(S.ad)}" maxlength="40"></label><label>Bölüm<input name="bolum" value="${esc(S.bolum)}" maxlength="60"></label><div style="margin-top:12px"><button class="btn">Kaydet</button></div></form>
+<p class="mut">Bu sürümde veriler yalnızca bu cihazdaki tarayıcıda saklanır. Ders ve ilanları kendin girersin.</p>
+<div class="row"><button class="btn g" data-a="demo">Örnek veri yükle</button><button class="btn g" data-a="wipe">${wipe?'Emin misin? Tekrar dokun':'Tüm verileri sil'}</button></div>`}
+function render(){$('app').innerHTML=({home,prog,paz,prof})[tab]();$('nav').innerHTML=[['home','Ana Sayfa'],['prog','Program'],['paz','Pazar'],['prof','Profil']].map(([k,t])=>`<button class="${k==tab?'on':''}" data-a="tab" data-i="${k}"${k==tab?' aria-current="page"':''}>${t}</button>`).join('')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,i=b.dataset.i;
+if(a!='wipe')wipe=0;
+if(a=='tab'){tab=i;form=null}else if(a=='gun')gun=+i;else if(a=='cat')cat=i;else if(a=='open')form=i;else if(a=='close')form=null;
+else if(a=='dsil'){S.dersler=S.dersler.filter(x=>x.id!=i);save()}
+else if(a=='isil'){S.ilanlar=S.ilanlar.filter(x=>x.id!=i);save()}
+else if(a=='demo'){if(!S.dersler.length)S.dersler=[{id:uid(),ad:'Matematik II',gun:0,bas:'09:00',bit:'10:50',sinif:'A-101'},{id:uid(),ad:'Veri Yapıları',gun:2,bas:'10:30',bit:'12:20',sinif:'B-204'},{id:uid(),ad:'Veritabanı Sistemleri',gun:2,bas:'14:00',bit:'15:50',sinif:'C-305'}];
+if(!S.ilanlar.length)S.ilanlar=[{id:uid(),baslik:'Veri Yapıları kitabı (örnek)',kat:'Kitap',fiyat:'180',iletisim:'Örnek iletişim',acik:'Az kullanıldı.'},{id:uid(),baslik:'Hesap makinesi (örnek)',kat:'Elektronik',fiyat:'250',iletisim:'Örnek iletişim',acik:''}];save()}
+else if(a=='wipe'){if(wipe){S={ad:'',bolum:'',dersler:[],ilanlar:[]};save();wipe=0}else wipe=1}
+render()});
+document.addEventListener('submit',e=>{e.preventDefault();const t=e.target,f=Object.fromEntries(new FormData(t));
+if(t.id=='f-ders'){if(f.bit<=f.bas){$('err').textContent='Bitiş saati başlangıçtan sonra olmalı.';return}S.dersler.push({id:uid(),ad:f.ad.trim(),gun:+f.gun,bas:f.bas,bit:f.bit,sinif:f.sinif.trim()});gun=+f.gun;form=null}
+else if(t.id=='f-ilan'){S.ilanlar.unshift({id:uid(),baslik:f.baslik.trim(),kat:f.kat,fiyat:f.fiyat.trim(),iletisim:f.iletisim.trim(),acik:f.acik.trim()});form=null}
+else if(t.id=='f-profil'){S.ad=f.ad.trim();S.bolum=f.bolum.trim()}
+save();render()});
+document.addEventListener('input',e=>{if(e.target.id=='q'){q=e.target.value;$('list').innerHTML=lst()}});
+render();
+</script></body></html>
