@@ -1,24 +1,23 @@
-# UniGo
+# UniGO MVP
 
-Öğrenciler için kampüs uygulaması prototipi (v0.1): ders programı, öğrenci pazar yeri ve günlük özet ekranı.
+Üniversite öğrencilerine yönelik (.edu.tr odaklı) ilan, takas, ücretsiz paylaşım ve kampüs pazar yeri uygulaması.
 
 ## Özellikler
-- Ders programı: ders ekleme, silme, gün seçme, sıradaki dersi gösterme
-- Pazar yeri: ilan verme, silme, arama, kategori filtresi
-- Profil: ad ve bölüm, örnek veri yükleme(Ders notları,AGNO hesaplama,Derslerden Geçip Kaldığını gösteren sistem) gibi özellikler
-- Karanlık mod desteği
+- .edu.tr hesap ile kayıt, giriş ve doğrulama akışı
 
-## Çalıştırma
-`UniGO MVP.html` dosyasını tarayıcıda açmanız yeterli. Kurulum gerekmez.
+- Satılık / Aranıyor ilan oluşturma, düzenleme, kapatma/yeniden açma ve silme
 
-## Notlar
-- Bu sürümde veriler yalnızca kullanıcının tarayıcısında (localStorage) saklanır, cihazlar arasında paylaşılmaz.
-- Öğrenci ders ve ilan bilgilerini kendisi girer, OBS entegrasyonu yoktur(Üniversite ile anlaşmalı olarak eklenmelidir).
+- Kategori, tür, kampüs ve etiket (Takas, Ücretsiz, Acil) filtreleme ile sıralama
 
-## Yol haritası
-- Ortak veritabanı (herkes aynı ilanları görsün)
-- Okul e-postası ile giriş
-- İlan fotoğrafı yükleme
-- Ders notlarını OBS sisteminden aktarma şeklinde hesap etme
-- Ring seferleri takibi
-- Yemekhane menüleri ve ücret
+- Çoklu fotoğraf yükleme (en fazla 4 görsel) ve detay modalı
+
+- Soru-cevap / teklif alanı, satıcı değerlendirme puanlama ve ilan şikayet akışı
+
+- Favorilere ekleme, liste/ızgara görünümü, karanlık/açık tema ve çoklu dil (Türkçe , İngilizce , Arapça) desteği
+
+## Proje Yapısı
+- UniGo Mvp.html: Tek dosyalık istemci arayüzü ve uygulama mantığı
+
+- docs/: Analiz, süreç, gereksinim, test, mühendislik ve izlenebilirlik dokümanları
+
+- evidence/ai-human-evidence.md: AI-insan iş birliği ve doğrulama kanıtları
