@@ -1,0 +1,2520 @@
+<!doctype html>
+<html lang="tr" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>UniGO – Öğrenci Pazar Yeri</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0D9488">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="UniGO">
+  <style>
+    :root {
+      --bg: #F2F7F6; --card: #FFFFFF; --card2: #F7FAFA; --ink: #0F172A; --mute: #5B6B73; --line: #DCE6E4;
+      --acc: #0D9488; --accT: #FFFFFF; --soft: #E6F7F5; --g1: #0D9488; --g2: #0284C7; --g3: #F59E0B;
+      --ok: #059669; --okBg: #ECFDF5; --warn: #D97706; --warnBg: #FFFBEB; --hot: #E11D48; --hotBg: #FFF1F2;
+      --f: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color-scheme: light;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #090F10; --card: #111A1C; --card2: #172326; --ink: #F1F5F9; --mute: #94A8AB; --line: #213236;
+        --acc: #2DD4BF; --accT: #061314; --soft: #132C2E; --g1: #2DD4BF; --g2: #38BDF8; --g3: #FBBF24;
+        --ok: #34D399; --okBg: #064E3B; --warn: #FBBF24; --warnBg: #451A03; --hot: #FB7185; --hotBg: #4C0519;
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #090F10; --card: #111A1C; --card2: #172326; --ink: #F1F5F9; --mute: #94A8AB; --line: #213236;
+      --acc: #2DD4BF; --accT: #061314; --soft: #132C2E; --g1: #2DD4BF; --g2: #38BDF8; --g3: #FBBF24;
+      --ok: #34D399; --okBg: #064E3B; --warn: #FBBF24; --warnBg: #451A03; --hot: #FB7185; --hotBg: #4C0519;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(600px 300px at 50% -80px, var(--soft), transparent) no-repeat, var(--bg);
+      color: var(--ink);
+      font: 400 14.5px/1.45 var(--f);
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input, select, textarea { font-family: var(--f); }
+    #app { max-width: 540px; margin: 0 auto; padding: 18px 14px 110px; }
+    h1 { font-size: 24px; margin: 0; }
+    h2 { font-size: 17px; margin: 0 0 8px; }
+    .mut { color: var(--mute); font-size: 12.5px; }
+
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .brand h1 { font-size: 30px; font-weight: 900; letter-spacing: -1.2px; line-height: 1; }
+    .brand h1 span {
+      background: linear-gradient(135deg, var(--g1), var(--g2) 55%, var(--g3));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .logo {
+      width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 21px;
+      background: linear-gradient(135deg, var(--g1), var(--g2)); box-shadow: 0 6px 16px rgba(13,148,136,.32); flex-shrink: 0;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; border-radius: 18px;
+      padding: 14px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; box-shadow: 0 10px 24px rgba(13,148,136,.24);
+    }
+    .hero-stats { display: flex; gap: 14px; margin-top: 6px; font-size: 12px; opacity: .92; }
+    .hero-stats b { font-size: 15px; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px;
+      margin-bottom: 10px; box-shadow: 0 2px 6px rgba(15,23,42,.04); transition: transform .12s ease;
+    }
+    .card:active { transform: scale(.995); }
+    .card.kapali { opacity: .62; }
+    .grid-view { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .grid-view .card { margin-bottom: 0; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; }
+    .grid-view .foto, .grid-view .cover { height: 115px; max-height: 115px; }
+    .grid-view .hide-g { display: none; }
+
+    .cover {
+      width: 100%; height: 130px; border-radius: 12px; margin-top: 8px;
+      display: grid; place-items: center; font-size: 40px; position: relative; overflow: hidden;
+    }
+    .cover span {
+      font-size: 11px; font-weight: 700; position: absolute; bottom: 8px; left: 10px;
+      background: rgba(0,0,0,.35); color: #fff; padding: 2px 8px; border-radius: 6px; backdrop-filter: blur(4px);
+    }
+    .foto { display: block; width: 100%; max-height: 210px; object-fit: cover; border-radius: 12px; margin-top: 8px; }
+    .foto[hidden] { display: none; }
+
+    .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .between { justify-content: space-between; }
+    .clk { cursor: pointer; }
+
+    .btn {
+      min-height: 44px; border: 0; border-radius: 13px; background: linear-gradient(135deg, var(--g1), var(--g2));
+      color: #fff; font: 600 14px var(--f); padding: 0 16px; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(13,148,136,.26); display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; text-decoration: none;
+    }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .btn.g { background: var(--card); color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
+    .btn.sm { min-height: 36px; padding: 0 12px; font-size: 13px; border-radius: 10px; }
+    .btn.danger { background: var(--hotBg); color: var(--hot); border: 1px solid rgba(225,29,72,.25); box-shadow: none; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 5px 0; }
+    .chip {
+      min-height: 34px; padding: 0 11px; border-radius: 20px; border: 1px solid var(--line);
+      background: var(--card); color: var(--ink); font: 600 12.5px var(--f); cursor: pointer;
+      white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .chip:disabled { opacity: .5; cursor: not-allowed; }
+    a.chip { text-decoration: none; }
+    .chip.on { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; border-color: transparent; }
+    .tg { min-width: 38px; padding: 0 10px; justify-content: center; }
+
+    .tag { background: var(--soft); color: var(--ink); border-radius: 7px; padding: 2px 7px; font-size: 11.5px; font-weight: 600; }
+    .tag.ara { background: var(--acc); color: var(--accT); }
+    .tag.ok { background: var(--okBg); color: var(--ok); }
+    .tag.warn { background: var(--warnBg); color: var(--warn); }
+    .tag.hot { background: var(--hotBg); color: var(--hot); }
+    .price { font-size: 16px; font-weight: 800; color: var(--acc); }
+
+    label { display: block; font: 600 12px var(--f); color: var(--mute); margin-top: 10px; }
+    input, select, textarea {
+      display: block; width: 100%; min-height: 42px; margin-top: 4px; padding: 9px 12px;
+      border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font-size: 14.5px;
+    }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--acc); border-color: transparent; }
+    select.mini { min-height: 34px; padding: 4px 10px; font-size: 12.5px; border-radius: 12px; margin: 0; width: auto; }
+    .chk-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--line);
+      border-radius: 12px; margin-top: 8px; margin-right: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--ink);
+    }
+    .chk-pill input { width: auto; min-height: 0; margin: 0; }
+
+    .otp-input { font-size: 22px; font-weight: 800; letter-spacing: 5px; text-align: center; min-height: 52px; }
+    .auth-tabs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--card2);
+      border: 1px solid var(--line); padding: 4px; border-radius: 12px; margin-bottom: 12px;
+    }
+    .auth-tabs button { min-height: 36px; border: 0; border-radius: 9px; background: none; color: var(--mute); font: 700 13px var(--f); cursor: pointer; }
+    .auth-tabs button.on { background: var(--card); color: var(--acc); box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+
+    .fav-btn {
+      border: 1px solid var(--line); background: var(--card); border-radius: 50%; width: 32px; height: 32px;
+      display: inline-grid; place-items: center; cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;
+    }
+    .fav-btn.on { border-color: #F43F5E; background: rgba(244,63,94,.12); }
+    .p-head { display: flex; gap: 14px; align-items: center; }
+    .avatar {
+      width: 56px; height: 56px; border-radius: 18px; background: linear-gradient(135deg, var(--g1), var(--g2));
+      color: #fff; font: 800 20px var(--f); display: grid; place-items: center; flex-shrink: 0;
+    }
+    .stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px;
+      padding-top: 12px; border-top: 1px solid var(--line); text-align: center;
+    }
+    .stats b { display: block; font-size: 18px; }
+    .seg {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--card);
+      border: 1px solid var(--line); padding: 4px; border-radius: 14px; margin: 12px 0;
+    }
+    .seg button { min-height: 36px; border: 0; border-radius: 10px; background: none; color: var(--mute); font: 600 13px var(--f); cursor: pointer; }
+    .seg button.on { background: var(--soft); color: var(--acc); }
+
+    .qa-item { background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin-top: 8px; }
+    .qa-ans { margin-top: 6px; padding-left: 10px; border-left: 2px solid var(--ok); font-size: 13px; }
+
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(9,13,22,.68); backdrop-filter: blur(5px);
+      z-index: 20; display: grid; place-items: end center; padding: 10px;
+    }
+    .modal-bg[hidden] { display: none; }
+    .modal {
+      background: var(--card); border: 1px solid var(--line); border-radius: 22px; width: 100%;
+      max-width: 500px; max-height: 88vh; overflow-y: auto; padding: 18px; box-shadow: 0 24px 48px rgba(0,0,0,.4);
+    }
+    .modal .foto { max-height: 280px; }
+
+    nav {
+      position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+      padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 10;
+    }
+    nav div { display: flex; max-width: 540px; margin: 0 auto; gap: 4px; }
+    nav button {
+      flex: 1; min-height: 48px; border: 0; background: none; color: var(--mute); font: 600 11px var(--f);
+      cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 14px;
+    }
+    nav button.on { color: var(--acc); background: var(--soft); }
+    .ic { font-size: 19px; line-height: 1; }
+
+    #toast {
+      position: fixed; left: 16px; right: 16px; bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+      max-width: 508px; margin: 0 auto; background: var(--ink); color: var(--bg);
+      padding: 12px 16px; border-radius: 14px; font-size: 13.5px; font-weight: 600; z-index: 30;
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    #toast[hidden] { display: none; }
+    .err { color: #E11D48; font-size: 13px; min-height: 18px; margin-top: 6px; font-weight: 600; }
+    .thumbs { display: flex; gap: 6px; margin: 0 0 10px; overflow-x: auto; }
+    .thumbs img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; cursor: pointer; flex-shrink: 0; }
+    .thumbs img.on { border-color: var(--acc); }
+    .pv { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .pv .pi { position: relative; }
+    .pv img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; display: block; }
+    .pv button { position: absolute; top: -6px; inset-inline-end: -6px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: var(--hot); color: #fff; font-size: 12px; line-height: 22px; padding: 0; cursor: pointer; }
+    .stars { color: #F59E0B; letter-spacing: 1px; }
+    @media (max-width: 700px) { input, select, textarea { font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="modal" class="modal-bg" hidden></div>
+  <div id="toast" role="status" hidden></div>
+  <nav><div id="nav"></div></nav>
+
+  <script>
+    const SB_URL = "https://hbgsezgcdlzznsenydnm.supabase.co";
+    const SB_KEY = "sb_publishable_tJcS3kzDKSOYlP_XUqvZJQ_b1jReVDO";
+
+    const STORE_KEY = 'unigo_pazar_store';
+    const TYPES = ['Satılık', 'Aranıyor'];
+    const CATS = ['Kitap', 'Ders notu', 'Elektronik', 'Ev arkadaşı', 'Eşya', 'Diğer'];
+    const CONDS = ['Sıfır', 'Az Kullanılmış', 'İyi Durumda'];
+    const GRADES = ['Hazırlık', '1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', 'Yüksek Lisans', 'Mezun'];
+    const DEPARTMENTS = {
+      fakulte: [
+        'Acil Yardım ve Afet Yönetimi',
+        'Aktüerya Bilimleri',
+        'Alman Dili ve Edebiyatı',
+        'Almanca Mütercim ve Tercümanlık',
+        'Almanca Öğretmenliği',
+        'Amerikan Kültürü ve Edebiyatı',
+        'Animasyon ve Video Üretimi',
+        'Antrenörlük Eğitimi',
+        'Antropoloji',
+        'Arap Dili ve Edebiyatı',
+        'Arapça Mütercim ve Tercümanlık',
+        'Arapça Öğretmenliği',
+        'Arkeoloji',
+        'Arkeoloji ve Sanat Tarihi',
+        'Astronomi ve Uzay Bilimleri',
+        'Bahçe Bitkileri',
+        'Balıkçılık Teknolojisi',
+        'Bankacılık ve Finans',
+        'Bankacılık ve Sigortacılık',
+        'Basın ve Yayın',
+        'Beden Eğitimi ve Spor Öğretmenliği',
+        'Beslenme ve Diyetetik',
+        'Bilgi Güvenliği Teknolojisi',
+        'Bilgi ve Belge Yönetimi',
+        'Bilgisayar Bilimleri',
+        'Bilgisayar Mühendisliği',
+        'Biyokimya',
+        'Biyoloji',
+        'Biyomedikal Mühendisliği',
+        'Biyomühendislik',
+        'Biyoteknoloji',
+        'Biyoteknoloji ve Genetik',
+        'Cevher Hazırlama Mühendisliği',
+        'Çalışma Ekonomisi ve Endüstri İlişkileri',
+        'Çerkez Dili ve Edebiyatı',
+        'Çevre Mühendisliği',
+        'Çin Dili ve Edebiyatı',
+        'Çizgi Film ve Animasyon',
+        'Çocuk Gelişimi',
+        'Deri Mühendisliği',
+        'Dil ve Konuşma Terapisi',
+        'Dilbilimi',
+        'Diş Hekimliği',
+        'Ebelik',
+        'Eczacılık',
+        'Egzersiz ve Spor Bilimleri',
+        'Ekonomi',
+        'Ekonomi ve Finans',
+        'Ekonometri',
+        'El Sanatları',
+        'Elektrik-Elektronik Mühendisliği',
+        'Elektronik ve Haberleşme Mühendisliği',
+        'Endüstri Mühendisliği',
+        'Endüstriyel Tasarım',
+        'Enerji Sistemleri Mühendisliği',
+        'Ergoterapi',
+        'Fars Dili ve Edebiyatı',
+        'Felsefe',
+        'Felsefe ve Yapay Zekâ',
+        'Felsefe Grubu Öğretmenliği',
+        'Fen Bilgisi Öğretmenliği',
+        'Film Tasarımı ve Yönetimi',
+        'Finans ve Bankacılık',
+        'Finansal Teknoloji',
+        'Fizik',
+        'Fizik Mühendisliği',
+        'Fizyoterapi ve Rehabilitasyon',
+        'Fransız Dili ve Edebiyatı',
+        'Fransızca Mütercim ve Tercümanlık',
+        'Fransızca Öğretmenliği',
+        'Gastronomi ve Mutfak Sanatları',
+        'Gayrimenkul Geliştirme ve Yönetimi',
+        'Geomatik Mühendisliği',
+        'Gıda Mühendisliği',
+        'Girişimcilik',
+        'Görsel İletişim Tasarımı',
+        'Görsel Sanatlar',
+        'Grafik',
+        'Grafik Tasarımı',
+        'Gümrük İşletme',
+        'Gürcü Dili ve Edebiyatı',
+        'Halkla İlişkiler ve Reklamcılık',
+        'Halkla İlişkiler ve Tanıtım',
+        'Harita Mühendisliği',
+        'Havacılık ve Uzay Mühendisliği',
+        'Hemşirelik',
+        'Hidrojeoloji Mühendisliği',
+        'Hindoloji',
+        'Hukuk',
+        'İç Mimarlık',
+        'İç Mimarlık ve Çevre Tasarımı',
+        'İktisat',
+        'İlahiyat',
+        'İletişim Bilimleri',
+        'İletişim Sanatları',
+        'İletişim Tasarımı ve Yönetimi',
+        'İlköğretim Matematik Öğretmenliği',
+        'İngiliz Dilbilimi',
+        'İngiliz Dili ve Edebiyatı',
+        'İngilizce Mütercim ve Tercümanlık',
+        'İngilizce Öğretmenliği',
+        'İnsan Kaynakları Yönetimi',
+        'İnşaat Mühendisliği',
+        'İslam İlimleri',
+        'İş Sağlığı ve Güvenliği',
+        'İşletme',
+        'İşletme ve Yapay Zekâ',
+        'İtalyan Dili ve Edebiyatı',
+        'Japon Dili ve Edebiyatı',
+        'Japonca Mütercim ve Tercümanlık',
+        'Jeofizik Mühendisliği',
+        'Jeoloji Mühendisliği',
+        'Kamu Yönetimi',
+        'Kentsel Tasarım ve Peyzaj Mimarlığı',
+        'Kimya',
+        'Kimya Mühendisliği',
+        'Kimya ve Süreç Mühendisliği',
+        'Kore Dili ve Edebiyatı',
+        'Kültür ve İletişim Bilimleri',
+        'Kürt Dili ve Edebiyatı',
+        'Lojistik Yönetimi',
+        'Maden Mühendisliği',
+        'Makine Mühendisliği',
+        'Matematik',
+        'Matematik Mühendisliği',
+        'Medya ve İletişim',
+        'Mekatronik Mühendisliği',
+        'Metalurji ve Malzeme Mühendisliği',
+        'Mimarlık',
+        'Moda Tasarımı',
+        'Moleküler Biyoloji ve Genetik',
+        'Muhasebe ve Finans Yönetimi',
+        'Mütercim-Tercümanlık',
+        'Müzik',
+        'Müzikoloji',
+        'Nükleer Enerji Mühendisliği',
+        'Odoloji',
+        'Okul Öncesi Öğretmenliği',
+        'Optik ve Akustik Mühendisliği',
+        'Organik Tarım İşletmeciliği',
+        'Orman Endüstrisi Mühendisliği',
+        'Orman Mühendisliği',
+        'Otomotiv Mühendisliği',
+        'Özel Eğitim Öğretmenliği',
+        'Paramedik',
+        'Pazarlama',
+        'Peyzaj Mimarlığı',
+        'Pilotaj',
+        'Polimer Malzeme Mühendisliği',
+        'Psikoloji',
+        'Psikolojik Danışmanlık ve Rehberlik',
+        'Radyo, Televizyon ve Sinema',
+        'Raylı Sistemler Mühendisliği',
+        'Reklam Tasarımı ve İletişimi',
+        'Rekreasyon',
+        'Rekreasyon Yönetimi',
+        'Rus Dili ve Edebiyatı',
+        'Rusça Mütercim ve Tercümanlık',
+        'Sağlık Yönetimi',
+        'Sahne Sanatları',
+        'Sanat Tarihi',
+        'Seramik',
+        'Sermaye Piyasaları',
+        'Sınıf Öğretmenliği',
+        'Sigortacılık ve Aktüerya Bilimleri',
+        'Sigortacılık ve Risk Yönetimi',
+        'Sinema ve Dijital Medya',
+        'Sinema ve Televizyon',
+        'Siyasal Bilimler',
+        'Siyaset Bilimi ve Kamu Yönetimi',
+        'Siyaset Bilimi ve Uluslararası İlişkiler',
+        'Sosyal Bilgiler Öğretmenliği',
+        'Sosyal Hizmet',
+        'Sosyoloji',
+        'Spor Yöneticiliği',
+        'Su Ürünleri Mühendisliği',
+        'Tarım Ekonomisi',
+        'Tarım Makineleri ve Teknolojileri Mühendisliği',
+        'Tarımsal Biyoteknoloji',
+        'Tarımsal Genetik Mühendisliği',
+        'Tarih',
+        'Tarih ve Yapay Zekâ',
+        'Tarih Öncesi Arkeolojisi',
+        'Tekstil Mühendisliği',
+        'Tekstil ve Moda Tasarımı',
+        'Televizyon Haberciliği ve Programcılığı',
+        'Tıp',
+        'Tiyatro Eleştirmenliği ve Dramaturji',
+        'Toprak Bilimi ve Bitki Besleme',
+        'Turizm İşletmeciliği',
+        'Turizm Rehberliği',
+        'Türk Dili ve Edebiyatı',
+        'Türk Dili ve Edebiyatı Öğretmenliği',
+        'Türk Halkbilimi',
+        'Türkçe Öğretmenliği',
+        'Ukrayna Dili ve Edebiyatı',
+        'Uluslararası Finans',
+        'Uluslararası Finans ve Bankacılık',
+        'Uluslararası İlişkiler',
+        'Uluslararası İşletme Yönetimi',
+        'Uluslararası Ticaret',
+        'Uluslararası Ticaret ve Finansman',
+        'Uluslararası Ticaret ve İşletmecilik',
+        'Uluslararası Ticaret ve Lojistik',
+        'Uygulamalı Bankacılık ve Finans',
+        'Uzay ve Uydu Mühendisliği',
+        'Veterinerlik',
+        'Yaban Hayatı Ekolojisi ve Yönetimi',
+        'Yapay Zekâ ve Veri Mühendisliği',
+        'Yapay Zekâ Mühendisliği',
+        'Yazılım Geliştirme',
+        'Yazılım Mühendisliği',
+        'Yeni Medya',
+        'Yeni Medya ve İletişim',
+        'Yeni Medya ve Gazetecilik',
+        'Yönetim Bilişim Sistemleri',
+        'Yunan Dili ve Edebiyatı',
+        'Zootekni'
+      ],
+      yuksekokul: [
+        'Acil Durum ve Afet Yönetimi',
+        'Adalet',
+        'Ağız ve Diş Sağlığı',
+        'Alternatif Enerji Kaynakları Teknolojisi',
+        'Ambalaj Tasarımı',
+        'Ameliyathane Hizmetleri',
+        'Anestezi',
+        'Arıcılık',
+        'Aşçılık',
+        'Ayakkabı Tasarımı ve Üretimi',
+        'Bağcılık',
+        'Bahçe Tarımı',
+        'Balıkçılık Teknolojisi (Ön Lisans)',
+        'Bankacılık ve Sigortacılık',
+        'Basım ve Yayım Teknolojileri',
+        'Beden Eğitimi ve Spor (Ön Lisans)',
+        'Besin Kalitesi ve Güvenliği Analizleri',
+        'Bilgi Yönetimi',
+        'Bilgisayar Destekli Tasarım ve Animasyon',
+        'Bilgisayar Operatörlüğü',
+        'Bilgisayar Programcılığı',
+        'Bilgisayar Teknolojisi',
+        'Bilişim Güvenliği Teknolojisi',
+        'Biyomedikal Cihaz Teknolojisi',
+        'Biyoteknoloji (Ön Lisans)',
+        'Büro Yönetimi ve Yönetici Asistanlığı',
+        'Ceza İnfaz ve Güvenlik Hizmetleri',
+        'Coğrafi Bilgi Sistemleri',
+        'Çağrı Merkezi Hizmetleri',
+        'Çay Eksperliği',
+        'Çevre Koruma ve Kontrol',
+        'Çevre Sağlığı',
+        'Çiçekçilik',
+        'Çini Sanatı ve Tasarımı',
+        'Çocuk Gelişimi',
+        'Dijital Dönüşüm Elektroniği',
+        'Dijital Oyun Teknolojileri',
+        'Diş Protez Teknolojisi',
+        'Diyaliz',
+        'Doğal Taş Teknolojisi',
+        'Doğalgaz ve Tesisatı Teknolojisi',
+        'Döküm',
+        'Eczane Hizmetleri',
+        'Elektrik',
+        'Elektrik Enerjisi Üretim, İletim ve Dağıtımı',
+        'Elektronik Haberleşme Teknolojisi',
+        'Elektronik Teknolojisi',
+        'Elektromekanik Taşıyıcılar Teknolojisi',
+        'Emlak Yönetimi',
+        'Endüstri Ürünleri Tasarımı',
+        'Endüstriyel Cam ve Seramik',
+        'Endüstriyel Kalıpçılık',
+        'Enerji Tesisleri İşletmeciliği',
+        'Engelli Bakımı ve Rehabilitasyon',
+        'Eser Koruma',
+        'Et ve Ürünleri Teknolojisi',
+        'Evde Hasta Bakımı',
+        'Fındık Eksperliği',
+        'Fidan Yetiştiriciliği',
+        'Fizikoterapi',
+        'Fotoğrafçılık ve Kameramanlık',
+        'Geleneksel El Sanatları',
+        'Gemi İnşaatı',
+        'Gemi Makineleri İşletme',
+        'Geoteknik ve Yeraltı Teknolojileri',
+        'Gıda Kalite Kontrolü ve Analizi',
+        'Gıda Teknolojisi',
+        'Giyim Üretim Teknolojisi',
+        'Grafik Tasarımı',
+        'Halkla İlişkiler ve Tanıtım',
+        'Harita ve Kadastro',
+        'Hava Lojistiği',
+        'Hayvancılık Teknolojisi',
+        'Hayvancılık Teknolojileri ve İşletmeciliği',
+        'Hibrit ve Elektrikli Taşıtlar Teknolojisi',
+        'Hukuk Büro Yönetimi ve Sekreterliği',
+        'İç Mekan Tasarımı',
+        'İklimlendirme ve Soğutma Teknolojisi',
+        'İlaç Üretim Teknolojisi',
+        'İlk ve Acil Yardım',
+        'İnsan Kaynakları Yönetimi',
+        'İnşaat Teknolojisi',
+        'İnternet ve Ağ Teknolojileri',
+        'İş Sağlığı ve Güvenliği',
+        'İşletme Yönetimi',
+        'Kabotaj ve Denizcilik',
+        'Kuyumculuk ve Mücevher Tasarımı',
+        'Laboratuvar Hayvanları',
+        'Laboratuvar Teknolojisi',
+        'Lojistik',
+        'Madencilik Teknolojisi',
+        'Makine',
+        'Makine, Resim ve Konstrüksiyon',
+        'Mekatronik',
+        'Metalurji',
+        'Mimari Dekoratif Sanatlar',
+        'Mimari Restorasyon',
+        'Mobilya ve Dekorasyon',
+        'Mobil Teknolojileri',
+        'Mobil Güvenlik Teknolojileri',
+        'Moda Tasarımı',
+        'Muhasebe ve Vergi Uygulamaları',
+        'Nükleer Teknoloji ve Radyasyon Güvenliği',
+        'Odyometri',
+        'Optisyenlik',
+        'Organik Tarım',
+        'Ormancılık ve Orman Ürünleri',
+        'Otobüs Kaptanlığı',
+        'Otomotiv Teknolojisi',
+        'Otopark ve Vale Hizmetleri',
+        'Özel Güvenlik ve Koruma',
+        'Patlayıcı ve Enerjetik Malzemeler Teknikerliği',
+        'Pazarlama',
+        'Peyzaj ve Süs Bitkileri Yetiştiriciliği',
+        'Posta Hizmetleri',
+        'Radyo ve Televizyon Programcılığı',
+        'Radyoterapi',
+        'Raylı Sistemler Elektrik ve Elektronik',
+        'Raylı Sistemler Makine Teknolojisi',
+        'Raylı Sistemler Makinistliği',
+        'Raylı Sistemler Yol Teknolojisi',
+        'Saç Bakımı ve Güzellik Hizmetleri',
+        'Sağlık Bilgi Sistemleri Teknikerliği',
+        'Sağlık Kurumları İşletmeciliği',
+        'Sağlık Turizmi İşletmeciliği',
+        'Sivil Havacılık Kabin Hizmetleri',
+        'Sivil Hava Ulaştırma İşletmeciliği',
+        'Sondaj Teknolojisi',
+        'Sosyal Güvenlik',
+        'Sosyal Hizmetler',
+        'Spor Yönetimi',
+        'Su Altı Teknolojisi',
+        'Süt ve Besi Hayvancılığı',
+        'Süt ve Ürünleri Teknolojisi',
+        'Tapu ve Kadastro',
+        'Tarım Teknolojisi',
+        'Tarımsal İşletmecilik',
+        'Tarımsal Ürünler Muhafaza ve Depolama Teknolojisi',
+        'Tespih Tasarımı ve İmalatı',
+        'Tıbbi Dokümantasyon ve Sekreterlik',
+        'Tıbbi Görüntüleme Teknikleri',
+        'Tıbbi Laboratuvar Teknikleri',
+        'Tıbbi Tanıtım ve Pazarlama',
+        'Tohumculuk Teknolojisi',
+        'Turizm ve Otel İşletmeciliği',
+        'Turizm ve Seyahat Hizmetleri',
+        'Uçak Teknolojisi',
+        'Uygulamalı İngilizce ve Çevirmenlik',
+        'Üretimde Kalite Kontrol',
+        'Yapay Zekâ Destekli Tasarım ve Animasyon',
+        'Yapay Zekâ Destekli Web Tasarımı ve Kodlama',
+        'Yapay Zekâ Operatörlüğü',
+        'Yapı Denetimi',
+        'Yapı Yalıtım Teknolojisi',
+        'Yaşlı Bakımı',
+        'Yerel Yönetimler',
+        'Zeytin Teknolojisi'
+      ]
+    };
+    const DAY_MS = 864e5;
+
+    const CAT_META = {
+      'Kitap': { ic: '📚', bg: 'linear-gradient(135deg,#3B82F6,#1D4ED8)' },
+      'Ders notu': { ic: '📝', bg: 'linear-gradient(135deg,#8B5CF6,#6D28D9)' },
+      'Elektronik': { ic: '💻', bg: 'linear-gradient(135deg,#0EA5E9,#0369A1)' },
+      'Ev arkadaşı': { ic: '🏠', bg: 'linear-gradient(135deg,#10B981,#047857)' },
+      'Eşya': { ic: '🪑', bg: 'linear-gradient(135deg,#F59E0B,#B45309)' },
+      'Diğer': { ic: '📦', bg: 'linear-gradient(135deg,#64748B,#334155)' }
+    };
+
+    const $ = id => document.getElementById(id);
+    const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+    let saved = {};
+    try {
+      saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null') || {};
+      if (typeof saved !== 'object') saved = {};
+    } catch (e) {
+      saved = {};
+    }
+
+    const I18N = {
+      tr: {
+        heroTitle: 'Kampüs İlan & Takas',
+        heroSub: 'Sadece .edu.tr üniversite hesaplarına özel',
+        satilik: 'satılık',
+        araniyor: 'aranıyor',
+        freeCnt: 'ücretsiz',
+        searchPh: 'Kitap, ders notu, eşya veya bölüm ara...',
+        all: 'Tümü',
+        takasOnly: 'Takas',
+        freeOnly: 'Ücretsiz',
+        acilOnly: 'Acil',
+        sortNew: 'En yeni',
+        sortCheap: 'En ucuz',
+        sortExp: 'En pahalı',
+        sortPop: 'Popüler',
+        remMatch: '✕ Eşleşme filtresini kaldır',
+        noItems: 'Aradığın kriterlere uygun ilan yok.',
+        free: 'Ücretsiz',
+        takas: 'Takas',
+        acil: 'Acil',
+        pazarlik: 'Pazarlık',
+        sold: 'Satıldı',
+        found: 'Bulundu',
+        contact: 'İletişim',
+        contactBig: 'Satıcıyla İletişime Geç',
+        share: 'Paylaş',
+        edit: 'Düzenle',
+        reopen: 'Yeniden aç',
+        markSold: 'Satıldı',
+        markFound: 'Buldum',
+        sure: 'Emin misin?',
+        del: 'Sil',
+        translate: 'Çevir',
+        orig: 'Orijinal',
+        translating: '...',
+        navPaz: 'Vitrin',
+        navVer: 'İlan Ver',
+        navEdit: 'Düzenle',
+        navProf: 'Profil',
+        postTitle: 'Yeni İlan',
+        editTitle: 'İlanı Düzenle',
+        cancel: 'Vazgeç',
+        typeLbl: 'İlan Türü',
+        titleLbl: 'Başlık',
+        catLbl: 'Kategori',
+        condLbl: 'Durum',
+        priceLbl: 'Fiyat / Bütçe (₺, 0 = ücretsiz)',
+        pricePh: '150',
+        swapChk: 'Takasa açık',
+        negChk: 'Pazarlık payı var',
+        urgChk: 'Acil ilan',
+        contactLbl: 'İletişim Bilgisi',
+        fromProf: 'Profilden',
+        contactPh: '05xx xxx xx xx, mail veya @instagram',
+        descLbl: 'Açıklama',
+        photoLbl: 'Fotoğraf (isteğe bağlı)',
+        remPhoto: 'Fotoğrafı kaldır',
+        publish: 'Yayınla',
+        saveChanges: 'Kaydet',
+        actAds: 'Aktif İlan',
+        doneAds: 'Tamamlanan',
+        favs: 'Favori',
+        myAds: 'İlanlarım',
+        myFavs: 'Favoriler',
+        settings: 'Ayarlar',
+        noMyAds: 'Henüz açtığın bir ilan yok.',
+        firstAd: 'İlk ilanını ver',
+        noFavs: 'Henüz favori ilanın yok.',
+        stuInfo: 'Profil Bilgileri',
+        nameLbl: 'Ad Soyad',
+        namePh: 'Adın Soyadın',
+        deptLbl: 'Bölüm',
+        grpFakulte: 'Fakülte (Lisans)',
+        grpYuksekokul: 'Yüksekokul / MYO (Ön Lisans - Lisans)',
+        deptPh: 'Yazılım Geliştirme',
+        classLbl: 'Sınıf / Durum',
+        select: 'Seçiniz',
+        eduLbl: 'Üniversite E-postası',
+        verified: 'Doğrulanmış',
+        unverified: 'Doğrulanmadı',
+        verifyNow: 'Doğrula',
+        reverifyBtn: 'Yenile',
+        defContactLbl: 'Varsayılan İletişim',
+        saveInfo: 'Kaydet',
+        editProf: 'Değişiklik Yap',
+        appData: 'Hesap',
+        close: 'Kapat',
+        noDesc: 'Açıklama eklenmemiş.',
+        owner: 'İlan Sahibi',
+        stuUser: 'Öğrenci',
+        views: 'görüntülenme',
+        qaTitle: 'Sorular & Teklifler',
+        qaPh: 'Satıcıya soru sor veya teklif yaz...',
+        qaSend: 'Gönder',
+        ansPh: 'Yanıtını yaz...',
+        ansSend: 'Yanıtla',
+        noQa: 'Henüz soru sorulmamış.',
+        favBtn: '🤍 Favorile',
+        favedBtn: '❤️ Favoride',
+        justNow: 'Az önce',
+        minAgo: 'dk önce',
+        hrAgo: 'sa önce',
+        dayAgo: 'gün önce',
+        authTitle: 'Öğrenci Girişi',
+        authSub: 'İlan vermek ve soru sormak için .edu.tr hesabınla giriş yap.',
+        loginTab: 'Giriş Yap',
+        regTab: 'Kayıt Ol',
+        emailLbl: 'Üniversite E-postası (.edu.tr)',
+        emailPh: 'ornek@ogr.universite.edu.tr',
+        passLbl: 'Şifre (en az 6 karakter)',
+        passPh: '••••••',
+        loginBtn: 'Giriş Yap',
+        regBtn: 'Kayıt Ol',
+        logoutBtn: 'Çıkış Yap',
+        guestBanner: 'İlan verebilmek için .edu.tr hesabınla giriş yapmalısın.',
+        otpTitle: 'E-posta Doğrulama',
+        otpAnnualTitle: 'Yıllık Doğrulama',
+        otpDesc: 'adresine 6 haneli doğrulama kodu gönderdik. Gelen kutunu veya spam klasörünü kontrol edip kodu gir:',
+        otpAnnualDesc: 'Yeni eğitim yılı başladığı için hesabını tekrar doğrulaman gerekiyor:',
+        otpBtn: 'Doğrula',
+        otpResend: 'Kodu tekrar gönder',
+        t_favAdd: 'Favorilere eklendi.',
+        t_favRem: 'Favorilerden çıkarıldı.',
+        t_del: 'İlan silindi.',
+        t_share: 'İlan bilgisi kopyalandı.',
+        t_upd: 'İlan güncellendi.',
+        t_pub: 'İlan yayınlandı.',
+        t_pubMatch: 'Yayınlandı, eşleşme bulundu:',
+        t_prof: 'Profil güncellendi.',
+        campusOnly: 'Kampüsüm',
+        campusLogin: 'Kampüs filtresi için giriş yapmalısın.',
+        photosLbl: 'Fotoğraflar (en fazla 4)',
+        maxPhotos: 'En fazla 4 fotoğraf eklenebilir.',
+        uploading: 'Fotoğraflar yükleniyor...',
+        report: '🚩 Şikayet',
+        reportTitle: 'İlanı şikayet et',
+        reportReason: 'Neden',
+        reasons: { fake: 'Sahte / dolandırıcılık', bad: 'Uygunsuz içerik', wrong: 'Yanlış fiyat veya kategori', dup: 'Tekrar eden ilan', other: 'Diğer' },
+        reportNote: 'Açıklama (isteğe bağlı)',
+        reportSend: 'Şikayeti gönder',
+        t_reported: 'Şikayetin alındı, teşekkürler.',
+        e_report: 'Şikayet gönderilemedi. Giriş yaptığından emin ol.',
+        reviewsTitle: 'Satıcı değerlendirmeleri',
+        ratePh: 'Yorum (isteğe bağlı)',
+        rateSend: 'Gönder',
+        noReviews: 'Henüz değerlendirme yok.',
+        t_rated: 'Değerlendirmen kaydedildi.',
+        e_rated: 'Değerlendirme kaydedilemedi.',
+        ratingCnt: 'değerlendirme',
+        installApp: 'Uygulamayı yükle',
+        iosHint: 'iPhone: Safari ile Paylaş > Ana Ekrana Ekle yolunu izleyerek uygulama gibi kur.',
+        t_sessExp: 'Oturum süresi doldu, lütfen tekrar giriş yap.',
+        t_qa: 'Soru eklendi.',
+        t_ans: 'Yanıt gönderildi.',
+        t_trErr: 'Çeviri yapılamadı.',
+        t_loginOk: 'Giriş yapıldı.',
+        t_logout: 'Çıkış yapıldı.',
+        t_verified: 'Hesabın doğrulandı.',
+        t_codeSent: 'Doğrulama kodu gönderildi.',
+        e_title: 'Başlık en az 3 karakter olmalı.',
+        e_price: 'Geçerli bir fiyat girin.',
+        e_contact: 'İletişim bilgisi en az 3 karakter olmalı.',
+        e_eduOnly: 'Sadece .edu.tr uzantılı e-posta adresleri kullanılabilir.',
+        e_pass: 'Şifre en az 6 karakter olmalı.',
+        e_login: 'E-posta veya şifre hatalı.',
+        e_exists: 'Bu e-posta zaten kayıtlı veya işlem başarısız.',
+        e_taken: 'Bu e-posta zaten kayıtlı. Lütfen "Giriş Yap" sekmesinden şifrenle giriş yap.',
+        e_otp: 'Kod hatalı veya süresi dolmuş.',
+        types: { 'Satılık': 'Satılık', 'Aranıyor': 'Aranıyor' },
+        cats: { 'Kitap': 'Kitap', 'Ders notu': 'Ders notu', 'Elektronik': 'Elektronik', 'Ev arkadaşı': 'Ev arkadaşı', 'Eşya': 'Eşya', 'Diğer': 'Diğer' },
+        conds: { 'Sıfır': 'Sıfır', 'Az Kullanılmış': 'Az Kullanılmış', 'İyi Durumda': 'İyi Durumda' },
+        classes: { 'Hazırlık': 'Hazırlık', '1. Sınıf': '1. Sınıf', '2. Sınıf': '2. Sınıf', '3. Sınıf': '3. Sınıf', '4. Sınıf': '4. Sınıf', 'Yüksek Lisans': 'Yüksek Lisans', 'Mezun': 'Mezun' }
+      },
+      en: {
+        heroTitle: 'Campus Market & Swap',
+        heroSub: 'Exclusively for .edu.tr university accounts',
+        satilik: 'for sale',
+        araniyor: 'wanted',
+        freeCnt: 'free',
+        searchPh: 'Search books, notes, items or department...',
+        all: 'All',
+        takasOnly: 'Swap',
+        freeOnly: 'Free',
+        acilOnly: 'Urgent',
+        sortNew: 'Newest',
+        sortCheap: 'Lowest price',
+        sortExp: 'Highest price',
+        sortPop: 'Popular',
+        remMatch: '✕ Clear match filter',
+        noItems: 'No listings match your search.',
+        free: 'Free',
+        takas: 'Swap',
+        acil: 'Urgent',
+        pazarlik: 'Negotiable',
+        sold: 'Sold',
+        found: 'Found',
+        contact: 'Contact',
+        contactBig: 'Contact Seller',
+        share: 'Share',
+        edit: 'Edit',
+        reopen: 'Reopen',
+        markSold: 'Mark Sold',
+        markFound: 'Mark Found',
+        sure: 'Sure?',
+        del: 'Delete',
+        translate: 'Translate',
+        orig: 'Original',
+        translating: '...',
+        navPaz: 'Market',
+        navVer: 'Post',
+        navEdit: 'Edit',
+        navProf: 'Profile',
+        postTitle: 'New Listing',
+        editTitle: 'Edit Listing',
+        cancel: 'Cancel',
+        typeLbl: 'Type',
+        titleLbl: 'Title',
+        catLbl: 'Category',
+        condLbl: 'Condition',
+        priceLbl: 'Price / Budget (₺, 0 = free)',
+        pricePh: '150',
+        swapChk: 'Open to swap',
+        negChk: 'Negotiable',
+        urgChk: 'Urgent',
+        contactLbl: 'Contact Info',
+        fromProf: 'From profile',
+        contactPh: 'Phone, email or @instagram',
+        descLbl: 'Description',
+        photoLbl: 'Photo (optional)',
+        remPhoto: 'Remove photo',
+        publish: 'Publish',
+        saveChanges: 'Save',
+        actAds: 'Active',
+        doneAds: 'Completed',
+        favs: 'Favorites',
+        myAds: 'My Listings',
+        myFavs: 'Favorites',
+        settings: 'Settings',
+        noMyAds: 'You have not posted any listings yet.',
+        firstAd: 'Post your first item',
+        noFavs: 'No favorite listings yet.',
+        stuInfo: 'Profile Info',
+        nameLbl: 'Full Name',
+        namePh: 'Your Name',
+        deptLbl: 'Department',
+        grpFakulte: 'Faculty (Bachelor’s)',
+        grpYuksekokul: 'Vocational School / College',
+        deptPh: 'Software Development',
+        classLbl: 'Year / Status',
+        select: 'Select',
+        eduLbl: 'University Email',
+        verified: 'Verified',
+        unverified: 'Unverified',
+        verifyNow: 'Verify',
+        reverifyBtn: 'Renew',
+        defContactLbl: 'Default Contact',
+        saveInfo: 'Save',
+        editProf: 'Edit Info',
+        appData: 'Account',
+        close: 'Close',
+        noDesc: 'No description provided.',
+        owner: 'Seller',
+        stuUser: 'Student',
+        views: 'views',
+        qaTitle: 'Questions & Offers',
+        qaPh: 'Ask a question or make an offer...',
+        qaSend: 'Send',
+        ansPh: 'Write a reply...',
+        ansSend: 'Reply',
+        noQa: 'No questions yet.',
+        favBtn: '🤍 Favorite',
+        favedBtn: '❤️ Favorited',
+        justNow: 'Just now',
+        minAgo: 'm ago',
+        hrAgo: 'h ago',
+        dayAgo: 'd ago',
+        authTitle: 'Student Sign In',
+        authSub: 'Sign in with your .edu.tr email to post and ask questions.',
+        loginTab: 'Sign In',
+        regTab: 'Register',
+        emailLbl: 'University Email (.edu.tr)',
+        emailPh: 'name@ogr.university.edu.tr',
+        passLbl: 'Password (min 6 chars)',
+        passPh: '••••••',
+        loginBtn: 'Sign In',
+        regBtn: 'Register',
+        logoutBtn: 'Sign Out',
+        guestBanner: 'Sign in with your .edu.tr account to post listings.',
+        otpTitle: 'Email Verification',
+        otpAnnualTitle: 'Annual Verification',
+        otpDesc: 'We sent a 6-digit verification code to your email. Check your inbox or spam folder and enter it below:',
+        otpAnnualDesc: 'A new academic year has started. Please re-verify your email:',
+        otpBtn: 'Verify',
+        otpResend: 'Resend code',
+        t_favAdd: 'Added to favorites.',
+        t_favRem: 'Removed from favorites.',
+        t_del: 'Listing deleted.',
+        t_share: 'Listing info copied.',
+        t_upd: 'Listing updated.',
+        t_pub: 'Listing published.',
+        t_pubMatch: 'Published, matches found:',
+        t_prof: 'Profile updated.',
+        campusOnly: 'My campus',
+        campusLogin: 'Sign in to use the campus filter.',
+        photosLbl: 'Photos (up to 4)',
+        maxPhotos: 'You can add up to 4 photos.',
+        uploading: 'Uploading photos...',
+        report: '🚩 Report',
+        reportTitle: 'Report listing',
+        reportReason: 'Reason',
+        reasons: { fake: 'Fake / scam', bad: 'Inappropriate content', wrong: 'Wrong price or category', dup: 'Duplicate listing', other: 'Other' },
+        reportNote: 'Details (optional)',
+        reportSend: 'Send report',
+        t_reported: 'Report received, thank you.',
+        e_report: 'Could not send the report. Make sure you are signed in.',
+        reviewsTitle: 'Seller reviews',
+        ratePh: 'Comment (optional)',
+        rateSend: 'Submit',
+        noReviews: 'No reviews yet.',
+        t_rated: 'Your review was saved.',
+        e_rated: 'Could not save the review.',
+        ratingCnt: 'reviews',
+        installApp: 'Install app',
+        iosHint: 'iPhone: in Safari tap Share > Add to Home Screen to install it like an app.',
+        t_sessExp: 'Session expired, please sign in again.',
+        t_qa: 'Question posted.',
+        t_ans: 'Reply sent.',
+        t_trErr: 'Translation failed.',
+        t_loginOk: 'Signed in.',
+        t_logout: 'Signed out.',
+        t_verified: 'Account verified.',
+        t_codeSent: 'Verification code sent.',
+        e_title: 'Title must be at least 3 characters.',
+        e_price: 'Enter a valid price.',
+        e_contact: 'Contact must be at least 3 characters.',
+        e_eduOnly: 'Only .edu.tr email addresses are allowed.',
+        e_pass: 'Password must be at least 6 characters.',
+        e_login: 'Invalid email or password.',
+        e_exists: 'Email already registered or failed.',
+        e_taken: 'This email is already registered. Please use the "Sign In" tab.',
+        e_otp: 'Invalid or expired code.',
+        types: { 'Satılık': 'For Sale', 'Aranıyor': 'Wanted' },
+        cats: { 'Kitap': 'Books', 'Ders notu': 'Notes', 'Elektronik': 'Electronics', 'Ev arkadaşı': 'Roommate', 'Eşya': 'Items', 'Diğer': 'Other' },
+        conds: { 'Sıfır': 'Brand New', 'Az Kullanılmış': 'Like New', 'İyi Durumda': 'Good' },
+        classes: { 'Hazırlık': 'Prep Year', '1. Sınıf': '1st Year', '2. Sınıf': '2nd Year', '3. Sınıf': '3rd Year', '4. Sınıf': '4th Year', 'Yüksek Lisans': 'Master’s', 'Mezun': 'Alumni' }
+      },
+      ar: {
+        heroTitle: 'سوق وتبادل الحرم الجامعي',
+        heroSub: 'حصرياً لحسابات الجامعات المنتهية بـ .edu.tr',
+        satilik: 'للبيع',
+        araniyor: 'مطلوب',
+        freeCnt: 'مجاني',
+        searchPh: 'ابحث عن كتب، ملخصات، أغراض أو تخصص...',
+        all: 'الكل',
+        takasOnly: 'تبادل',
+        freeOnly: 'مجاني',
+        acilOnly: 'عاجل',
+        sortNew: 'الأحدث',
+        sortCheap: 'الأقل سعراً',
+        sortExp: 'الأعلى سعراً',
+        sortPop: 'الأكثر مشاهدة',
+        remMatch: '✕ إزالة فلتر المطابقة',
+        noItems: 'لا توجد إعلانات مطابقة لبحثك.',
+        free: 'مجاني',
+        takas: 'تبادل',
+        acil: 'عاجل',
+        pazarlik: 'قابل للتفاوض',
+        sold: 'تم البيع',
+        found: 'تم العثور',
+        contact: 'تواصل',
+        contactBig: 'تواصل مع البائع',
+        share: 'مشاركة',
+        edit: 'تعديل',
+        reopen: 'إعادة فتح',
+        markSold: 'تم البيع',
+        markFound: 'تم العثور',
+        sure: 'متأكد؟',
+        del: 'حذف',
+        translate: 'ترجمة',
+        orig: 'الأصل',
+        translating: '...',
+        navPaz: 'السوق',
+        navVer: 'أضف إعلان',
+        navEdit: 'تعديل',
+        navProf: 'حسابي',
+        postTitle: 'إعلان جديد',
+        editTitle: 'تعديل الإعلان',
+        cancel: 'إلغاء',
+        typeLbl: 'نوع الإعلان',
+        titleLbl: 'العنوان',
+        catLbl: 'القسم',
+        condLbl: 'الحالة',
+        priceLbl: 'السعر / الميزانية (₺، 0 = مجاني)',
+        pricePh: '150',
+        swapChk: 'متاح للتبادل',
+        negChk: 'قابل للتفاوض',
+        urgChk: 'إعلان عاجل',
+        contactLbl: 'معلومات التواصل',
+        fromProf: 'من الملف الشخصي',
+        contactPh: 'رقم الهاتف، البريد أو @instagram',
+        descLbl: 'الوصف',
+        photoLbl: 'صورة (اختياري)',
+        remPhoto: 'إزالة الصورة',
+        publish: 'نشر الإعلان',
+        saveChanges: 'حفظ',
+        actAds: 'نشط',
+        doneAds: 'مكتمل',
+        favs: 'المفضلة',
+        myAds: 'إعلاناتي',
+        myFavs: 'المفضلة',
+        settings: 'الإعدادات',
+        noMyAds: 'لم تقم بنشر أي إعلان بعد.',
+        firstAd: 'أضف إعلانك الأول',
+        noFavs: 'لا توجد إعلانات في المفضلة بعد.',
+        stuInfo: 'بيانات الحساب',
+        nameLbl: 'الاسم الكامل',
+        namePh: 'الاسم واللقب',
+        deptLbl: 'التخصص',
+        grpFakulte: 'الكليات (بكالوريوس)',
+        grpYuksekokul: 'المعاهد والمدارس العليا',
+        deptPh: 'تطوير البرمجيات',
+        classLbl: 'السنة الدراسية',
+        select: 'اختر',
+        eduLbl: 'البريد الجامعي',
+        verified: 'موثّق',
+        unverified: 'غير موثّق',
+        verifyNow: 'توثيق',
+        reverifyBtn: 'تجديد',
+        defContactLbl: 'وسيلة التواصل الافتراضية',
+        saveInfo: 'حفظ',
+        editProf: 'تعديل البيانات',
+        appData: 'الحساب',
+        close: 'إغلاق',
+        noDesc: 'لم يتم إضافة وصف.',
+        owner: 'صاحب الإعلان',
+        stuUser: 'طالب جامعي',
+        views: 'مشاهدة',
+        qaTitle: 'الأسئلة والعروض',
+        qaPh: 'اسأل البائع أو قدم عرضاً...',
+        qaSend: 'إرسال',
+        ansPh: 'اكتب ردك...',
+        ansSend: 'رد',
+        noQa: 'لا توجد أسئلة بعد.',
+        favBtn: '🤍 مفضلة',
+        favedBtn: '❤️ في المفضلة',
+        justNow: 'الآن',
+        minAgo: 'د',
+        hrAgo: 'س',
+        dayAgo: 'ي',
+        authTitle: 'دخول الطلاب',
+        authSub: 'سجّل الدخول ببريدك الجامعي .edu.tr للنشر والتواصل.',
+        loginTab: 'تسجيل الدخول',
+        regTab: 'حساب جديد',
+        emailLbl: 'البريد الجامعي (.edu.tr)',
+        emailPh: 'name@ogr.university.edu.tr',
+        passLbl: 'كلمة المرور (6 أحرف على الأقل)',
+        passPh: '••••••',
+        loginBtn: 'دخول',
+        regBtn: 'تسجيل',
+        logoutBtn: 'تسجيل الخروج',
+        guestBanner: 'يجب تسجيل الدخول بحسابك الجامعي .edu.tr لإضافة إعلان.',
+        otpTitle: 'تأكيد البريد الإلكتروني',
+        otpAnnualTitle: 'التحقق السنوي',
+        otpDesc: 'أرسلنا رمز تحقق مكون من 6 أرقام إلى بريدك. تحقق من البريد الوارد أو الرسائل غير المرغوب فيها وأدخل الرمز:',
+        otpAnnualDesc: 'بدأ عام دراسي جديد، يرجى إعادة تأكيد بريدك الجامعي:',
+        otpBtn: 'تأكيد',
+        otpResend: 'إعادة إرسال الرمز',
+        t_favAdd: 'تمت الإضافة إلى المفضلة.',
+        t_favRem: 'تمت الإزالة من المفضلة.',
+        t_del: 'تم حذف الإعلان.',
+        t_share: 'تم نسخ بيانات الإعلان.',
+        t_upd: 'تم تحديث الإعلان.',
+        t_pub: 'تم نشر الإعلان.',
+        t_pubMatch: 'تم النشر، تم العثور على مطابقات:',
+        t_prof: 'تم حفظ الملف الشخصي.',
+        campusOnly: 'جامعتي',
+        campusLogin: 'سجّل الدخول لاستخدام فلتر الجامعة.',
+        photosLbl: 'الصور (حتى 4)',
+        maxPhotos: 'يمكن إضافة 4 صور كحد أقصى.',
+        uploading: 'جارٍ رفع الصور...',
+        report: '🚩 إبلاغ',
+        reportTitle: 'الإبلاغ عن الإعلان',
+        reportReason: 'السبب',
+        reasons: { fake: 'مزيف / احتيال', bad: 'محتوى غير لائق', wrong: 'سعر أو فئة خاطئة', dup: 'إعلان مكرر', other: 'أخرى' },
+        reportNote: 'تفاصيل (اختياري)',
+        reportSend: 'إرسال البلاغ',
+        t_reported: 'تم استلام بلاغك، شكراً لك.',
+        e_report: 'تعذّر إرسال البلاغ. تأكد من تسجيل الدخول.',
+        reviewsTitle: 'تقييمات البائع',
+        ratePh: 'تعليق (اختياري)',
+        rateSend: 'إرسال',
+        noReviews: 'لا توجد تقييمات بعد.',
+        t_rated: 'تم حفظ تقييمك.',
+        e_rated: 'تعذّر حفظ التقييم.',
+        ratingCnt: 'تقييم',
+        installApp: 'تثبيت التطبيق',
+        iosHint: 'آيفون: من سفاري اختر مشاركة ثم إضافة إلى الشاشة الرئيسية.',
+        t_sessExp: 'انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى.',
+        t_qa: 'تمت إضافة سؤالك.',
+        t_ans: 'تم إرسال الرد.',
+        t_trErr: 'تعذرت الترجمة.',
+        t_loginOk: 'تم تسجيل الدخول.',
+        t_logout: 'تم تسجيل الخروج.',
+        t_verified: 'تم تأكيد حسابك بنجاح.',
+        t_codeSent: 'تم إرسال رمز التحقق.',
+        e_title: 'يجب أن يكون العنوان 3 أحرف على الأقل.',
+        e_price: 'أدخل سعراً صحيحاً.',
+        e_contact: 'معلومات التواصل قصيرة جداً.',
+        e_eduOnly: 'يُسمح فقط بالبريد الجامعي المنتهي بـ .edu.tr.',
+        e_pass: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.',
+        e_login: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+        e_exists: 'البريد مسجل مسبقاً أو فشلت العملية.',
+        e_taken: 'هذا البريد مسجل مسبقاً. يرجى تسجيل الدخول.',
+        e_otp: 'الرمز غير صحيح أو منتهي الصلاحية.',
+        types: { 'Satılık': 'للبيع', 'Aranıyor': 'مطلوب' },
+        cats: { 'Kitap': 'كتب', 'Ders notu': 'ملخصات', 'Elektronik': 'إلكترونيات', 'Ev arkadaşı': 'شريك سكن', 'Eşya': 'أغراض', 'Diğer': 'أخرى' },
+        conds: { 'Sıfır': 'جديد', 'Az Kullanılmış': 'شبه جديد', 'İyi Durumda': 'حالة جيدة' },
+        classes: { 'Hazırlık': 'سنة تحضيرية', '1. Sınıf': 'سنة أولى', '2. Sınıf': 'سنة ثانية', '3. Sınıf': 'سنة ثالثة', '4. Sınıf': 'سنة رابعة', 'Yüksek Lisans': 'ماجستير', 'Mezun': 'خريج' }
+      }
+    };
+
+    const LANGS = ['tr', 'en', 'ar'];
+    let lang = localStorage.getItem('unigo_lang') || 'tr';
+    if (!I18N[lang]) lang = 'tr';
+    const L = () => I18N[lang];
+    const applyLangDir = () => {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang == 'ar' ? 'rtl' : 'ltr';
+    };
+    applyLangDir();
+
+    let state = {
+      users: saved.users && typeof saved.users === 'object' ? saved.users : {},
+      curUser: typeof saved.curUser === 'string' ? saved.curUser : '',
+      token: String(saved.token || ''),
+      refresh: String(saved.refresh || ''),
+      fav: Array.isArray(saved.fav) ? saved.fav : [],
+      ilanlar: Array.isArray(saved.ilanlar) ? saved.ilanlar : []
+    };
+
+    const sbBase = () => SB_URL.replace(/\/$/, '');
+
+    // ---- Oturum otomatik yenileme (1 saat sonra çıkış olmasın) ----
+    const _rawFetch = fetch.bind(window);
+    let refreshing = null;
+    const jwtExp = t => { try { return JSON.parse(atob(String(t).split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).exp * 1000; } catch (e) { return 0; } };
+    function sessionExpired() {
+      if (!state.curUser) return;
+      state.token = ''; state.refresh = ''; state.curUser = '';
+      sv();
+      toast(L().t_sessExp);
+      render();
+    }
+    function refreshSession() {
+      if (!state.refresh) return Promise.resolve(false);
+      if (!refreshing) {
+        refreshing = (async () => {
+          try {
+            const res = await _rawFetch(`${sbBase()}/auth/v1/token?grant_type=refresh_token`, {
+              method: 'POST', headers: sbHeaders(false), body: JSON.stringify({ refresh_token: state.refresh })
+            });
+            if (res.ok) {
+              const d = await res.json();
+              if (d.access_token) { state.token = d.access_token; state.refresh = d.refresh_token || state.refresh; sv(); return true; }
+            } else if (res.status === 400 || res.status === 401 || res.status === 403) {
+              sessionExpired();
+            }
+          } catch (e) {}
+          return false;
+        })().finally(() => { refreshing = null; });
+      }
+      return refreshing;
+    }
+    window.fetch = async (url, opt) => {
+      opt = opt || {};
+      const bearer = opt.headers && (opt.headers.Authorization || opt.headers.authorization);
+      if (!String(url).startsWith(SB_URL) || !bearer || !state.token || bearer !== 'Bearer ' + state.token) return _rawFetch(url, opt);
+      const exp = jwtExp(state.token);
+      if (exp && exp - Date.now() < 60000 && state.refresh) await refreshSession();
+      const send = () => _rawFetch(url, { ...opt, headers: { ...opt.headers, 'Authorization': 'Bearer ' + state.token } });
+      let res = await send();
+      if (res.status === 401 && state.refresh && await refreshSession()) res = await send();
+      return res;
+    };
+    const sbHeaders = (useAuth = false) => {
+      const h = {
+        'Content-Type': 'application/json',
+        'apikey': SB_KEY
+      };
+      if (useAuth && state.token) {
+        h['Authorization'] = 'Bearer ' + state.token;
+      } else if (!SB_KEY.startsWith('sb_publishable_')) {
+        h['Authorization'] = 'Bearer ' + SB_KEY;
+      }
+      return h;
+    };
+
+    const getMe = () => state.curUser && state.users[state.curUser] ? state.users[state.curUser] : null;
+    const isEdu = m => /^[^\s@]+@[^\s@]+\.edu\.tr$/i.test(String(m || '').trim());
+
+    function needsAnnualVerify(u) {
+      if (!u || !u.verified || !u.verifiedAt) return true;
+      const now = new Date();
+      const octThis = new Date(now.getFullYear(), 9, 1).getTime();
+      const lastOct = now.getTime() >= octThis ? octThis : new Date(now.getFullYear() - 1, 9, 1).getTime();
+      return u.verifiedAt < lastOct;
+    }
+
+    let tab = 'paz', ptab = 'ilanlar', profEditing = false, cat = 'Tümü', tur = 'Tümü', sirala = 'yeni', fTag = '';
+    let grid = false, q = '', esl = '', fotos = [], editId = '', sd = '', tt;
+    let reviews = [], campusOnly = false, deferredInstall = null;
+    let authMode = 'login', otpReason = 'signup', otpVerifyType = 'signup';
+    let otpCooldownEnd = 0, otpTimer = null;
+    let trCache = {}, trBusy = {}, loading = false;
+
+    try {
+      const t = localStorage.getItem('unigo_theme');
+      if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+
+    const toast = m => {
+      const t = $('toast');
+      t.textContent = m;
+      t.hidden = false;
+      clearTimeout(tt);
+      tt = setTimeout(() => t.hidden = true, 3800);
+    };
+
+    const save = () => {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+        return 1;
+      } catch (e) {
+        return 0;
+      }
+    };
+    const sv = () => { if (!save()) toast('Depolama alanı dolu!'); };
+
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+    const tr = s => String(s == null ? '' : s).toLocaleLowerCase('tr-TR');
+
+    const ago = t => {
+      const m = Math.max(0, Math.floor((Date.now() - t) / 6e4)), d = L();
+      return m < 1 ? d.justNow : m < 60 ? `${m} ${d.minAgo}` : m < 1440 ? `${Math.floor(m / 60)} ${d.hrAgo}` : `${Math.floor(m / 1440)} ${d.dayAgo}`;
+    };
+    const aktif = x => Date.now() - (x.t || x.created_at) < 30 * DAY_MS;
+
+    // ---- Profil (bölüm/sınıf/iletişim) Supabase'de saklanır ----
+    async function saveProfile(u) {
+      if (!u || !state.token) return;
+      try {
+        await sbWrite('POST', `${sbBase()}/rest/v1/unigo_profiles?on_conflict=id`,
+          { id: u.id, ad: u.ad || '', bolum: u.bolum || '', sinif: u.sinif || '', iletisim: u.iletisim || '', favs: state.fav },
+          ['favs'], { 'Prefer': 'resolution=merge-duplicates,return=minimal' });
+      } catch (e) {}
+    }
+
+    async function saveFavs() {
+      const u = getMe();
+      if (!u || !state.token) return;
+      try {
+        const res = await sbWrite('PATCH', `${sbBase()}/rest/v1/unigo_profiles?id=eq.${encodeURIComponent(u.id)}`,
+          { favs: state.fav }, [], { 'Prefer': 'return=representation' });
+        if (res.ok) { const rows = await res.json(); if (!rows.length) saveProfile(u); }
+      } catch (e) {}
+    }
+
+    async function loadProfile(u) {
+      if (!u || !state.token) return;
+      try {
+        const res = await fetch(`${sbBase()}/rest/v1/unigo_profiles?id=eq.${encodeURIComponent(u.id)}&select=*`, { headers: sbHeaders(true) });
+        if (!res.ok) return;
+        const rows = await res.json();
+        if (rows && rows[0]) {
+          const r = rows[0];
+          u.ad = r.ad || u.ad;
+          u.bolum = r.bolum || '';
+          u.sinif = r.sinif || '';
+          u.iletisim = r.iletisim || '';
+          if (Array.isArray(r.favs)) {
+            if (r.favs.length) state.fav = r.favs.slice();
+            else if (state.fav.length) saveFavs();
+          }
+          sv();
+          render();
+        } else if (u.bolum || u.sinif || u.iletisim) {
+          saveProfile(u); // bu telefondaki eski bilgiyi buluta taşı
+        }
+      } catch (e) {}
+    }
+
+    async function syncListings() {
+      loading = true;
+      render();
+      try {
+        const res = await fetch(`${sbBase()}/rest/v1/unigo_listings?select=*&order=created_at.desc`, {
+          headers: sbHeaders(false)
+        });
+        if (res.ok) {
+          const rows = await res.json();
+          state.ilanlar = rows.map(r => ({
+            id: r.id,
+            sahip: r.user_id,
+            tur: r.tur,
+            baslik: r.baslik,
+            kat: r.kat,
+            kondisyon: r.kondisyon,
+            fiyat: r.fiyat,
+            takas: !!r.takas,
+            pazarlik: !!r.pazarlik,
+            acil: !!r.acil,
+            iletisim: r.iletisim,
+            acik: r.acik || '',
+            foto: r.foto || '',
+            fotolar: Array.isArray(r.fotolar) && r.fotolar.length ? r.fotolar : (r.foto ? [r.foto] : []),
+            uni: r.uni || '',
+            sahipAd: r.sahip_ad || '',
+            durum: r.durum || '',
+            goruntuleme: r.goruntuleme || 1,
+            sorular: Array.isArray(r.sorular) ? r.sorular : [],
+            t: Number(r.created_at) || Date.now()
+          }));
+          sv();
+        }
+      } catch (e) {}
+      loading = false;
+      render();
+    }
+
+    // ---- Üniversite (mailden) ----
+    const UNI_NAMES = { itu: 'İTÜ', metu: 'ODTÜ', boun: 'Boğaziçi', bogazici: 'Boğaziçi', hacettepe: 'Hacettepe', yildiz: 'Yıldız Teknik', ankara: 'Ankara Üni.', istanbul: 'İstanbul Üni.', ege: 'Ege Üni.', gtu: 'GTÜ', bilkent: 'Bilkent', koc: 'Koç' };
+    const UNI_GENERIC = ['ogr', 'std', 'stu', 'student', 'students', 'ogrenci', 'mail', 'edu', 'alumni'];
+    const uniOf = email => {
+      const m = String(email || '').trim().toLowerCase().match(/@([^@\s]+)\.edu\.tr$/);
+      if (!m) return '';
+      const c = m[1].split('.').pop();
+      return UNI_GENERIC.includes(c) ? '' : c;
+    };
+    const uniName = c => c ? (UNI_NAMES[c] || c.toUpperCase()) : '';
+
+    // ---- Satıcı puanı ----
+    const sellerStats = id => {
+      const r = reviews.filter(v => v.seller_id == id);
+      if (!r.length) return null;
+      return { n: r.length, avg: r.reduce((a, v) => a + (+v.rating || 0), 0) / r.length };
+    };
+    const starStr = n => { const k = Math.max(0, Math.min(5, Math.round(n))); return '★'.repeat(k) + '☆'.repeat(5 - k); };
+    const ratingTag = id => { const st = sellerStats(id); return st ? `<span class="stars">★</span>${st.avg.toFixed(1)} (${st.n})` : ''; };
+
+    async function syncReviews() {
+      try {
+        const res = await fetch(`${sbBase()}/rest/v1/unigo_reviews?select=*&order=created_at.desc&limit=1000`, { headers: sbHeaders(false) });
+        if (res.ok) { const rows = await res.json(); if (Array.isArray(rows)) { reviews = rows; render(); } }
+      } catch (e) {}
+    }
+
+    // ---- Supabase yazma (yeni sütun yoksa eski haline düş) ----
+    async function sbWrite(method, url, body, optional, extra) {
+      const hd = { ...sbHeaders(true), ...(extra || {}) };
+      let res = await fetch(url, { method, headers: hd, body: JSON.stringify(body) });
+      if (!res.ok && optional && optional.length) {
+        let msg = '';
+        try { msg = JSON.stringify(await res.clone().json()); } catch (e) {}
+        if (/column|schema cache|PGRST204/i.test(msg)) {
+          const b2 = { ...body };
+          optional.forEach(k => delete b2[k]);
+          res = await fetch(url, { method, headers: hd, body: JSON.stringify(b2) });
+        }
+      }
+      return res;
+    }
+
+    // ---- Fotoğrafları Supabase Storage'a yükle ----
+    async function uploadPhotos(list, u) {
+      const out = [];
+      for (let i = 0; i < list.length; i++) {
+        const src = list[i];
+        if (!String(src).startsWith('data:')) { out.push(src); continue; }
+        try {
+          const blob = await (await fetch(src)).blob();
+          const path = `${u.id}/${uid()}_${i}.jpg`;
+          const res = await fetch(`${sbBase()}/storage/v1/object/ilan-foto/${path}`, {
+            method: 'POST',
+            headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + state.token, 'Content-Type': 'image/jpeg', 'x-upsert': 'false' },
+            body: blob
+          });
+          if (res.ok) { out.push(`${sbBase()}/storage/v1/object/public/ilan-foto/${path}`); continue; }
+        } catch (e) {}
+        out.push(src); // Storage hazır değilse eski yöntem (yedek)
+      }
+      return out;
+    }
+
+    const pvHtml = () => fotos.map((u, i) => `<div class="pi"><img src="${esc(u)}" alt=""><button type="button" data-a="fotoSil" data-i="${i}" aria-label="${esc(L().remPhoto)}">✕</button></div>`).join('');
+    const renderPv = () => { const el = $('pv'); if (el) el.innerHTML = pvHtml(); };
+
+    // ---- Şikayet ----
+    function openReportModal(id) {
+      const d = L(), u = getMe(), x = state.ilanlar.find(y => y.id == id);
+      if (!x) return;
+      if (!u) { openAuthModal('login'); return; }
+      $('modal').innerHTML = `<div class="modal" role="dialog" aria-modal="true">
+        <div class="row between" style="margin-bottom:8px">
+          <h2>${esc(d.reportTitle)}</h2>
+          <button class="chip" data-a="closeModal">${esc(d.close)}</button>
+        </div>
+        <p class="mut" style="margin-top:0">${esc(x.baslik)}</p>
+        <form id="f-report" data-id="${esc(id)}">
+          <label>${esc(d.reportReason)}<select name="neden">${Object.entries(d.reasons).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')}</select></label>
+          <label>${esc(d.reportNote)}<textarea name="not" rows="3" maxlength="200"></textarea></label>
+          <div id="rep-err" class="err" role="alert"></div>
+          <div style="margin-top:12px"><button class="btn" style="width:100%">${esc(d.reportSend)}</button></div>
+        </form>
+      </div>`;
+      $('modal').hidden = false;
+    }
+
+    const kok = w => w.slice(0, 5);
+    const STOP = new Set(['için', 'ders', 'notu', 'notları', 'notlar', 'kitap', 'kitabı', 'kitabını', 'arıyorum', 'arıyor', 'satılık', 'satıyorum', 'örnek', 'almak', 'istiyorum', 'lazım', 'ilan', 'çok', 'kullanılmış', 'temiz', 'ucuz', 'acil', 'tane', 'adet'].map(kok));
+    const kel = s => tr(s).split(/[^a-zçğıöşü0-9]+/).filter(w => w.length > 2).map(kok).filter(w => !STOP.has(w));
+    const uyum = (x, y) => {
+      const s = x.tur == 'Satılık' ? x : y, a = x.tur == 'Satılık' ? y : x;
+      return +(+a.fiyat >= +s.fiyat);
+    };
+    const eslesen = x => {
+      const a = kel(x.baslik);
+      return state.ilanlar.filter(y => y.id != x.id && aktif(y) && !y.durum && y.tur != x.tur && y.kat == x.kat && kel(y.baslik).some(w => a.includes(w)))
+        .sort((p, r) => uyum(x, r) - uyum(x, p));
+    };
+
+    function iletisimLink(s) {
+      const v = String(s).trim(), d = v.replace(/[\s()-]/g, '');
+      if (/^(\+?90|0)?5\d{9}$/.test(d)) return 'https://wa.me/90' + d.slice(-10);
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'mailto:' + encodeURIComponent(v);
+      if (/^@[A-Za-z0-9._]{2,30}$/.test(v)) return 'https://instagram.com/' + v.slice(1);
+      return '';
+    }
+
+    function updateResendButton() {
+      const btn = $('resend-btn');
+      if (!btn) return;
+      const rem = Math.max(0, Math.ceil((otpCooldownEnd - Date.now()) / 1000));
+      if (rem > 0) {
+        btn.disabled = true;
+        btn.textContent = `${L().otpResend} (${rem}s)`;
+      } else {
+        btn.disabled = false;
+        btn.textContent = L().otpResend;
+        if (otpTimer) {
+          clearInterval(otpTimer);
+          otpTimer = null;
+        }
+      }
+    }
+
+    function startOtpCooldown() {
+      otpCooldownEnd = Date.now() + 60000;
+      if (otpTimer) clearInterval(otpTimer);
+      otpTimer = setInterval(() => {
+        if ($('modal').hidden || !$('resend-btn')) {
+          clearInterval(otpTimer);
+          otpTimer = null;
+          return;
+        }
+        updateResendButton();
+      }, 1000);
+      updateResendButton();
+    }
+
+    async function sendOtpCode(email, reason = 'signup') {
+      otpReason = reason;
+      if (Date.now() < otpCooldownEnd) {
+        openOtpModal();
+        return;
+      }
+
+      openOtpModal();
+      startOtpCooldown();
+      const err = $('otp-err');
+      if (err) err.textContent = '';
+
+      try {
+        let res;
+        if (otpVerifyType === 'signup') {
+          res = await fetch(`${sbBase()}/auth/v1/resend`, {
+            method: 'POST',
+            headers: sbHeaders(false),
+            body: JSON.stringify({ type: 'signup', email })
+          });
+        } else {
+          res = await fetch(`${sbBase()}/auth/v1/otp`, {
+            method: 'POST',
+            headers: sbHeaders(false),
+            body: JSON.stringify({ email, create_user: false })
+          });
+        }
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          if (err) err.textContent = data.msg || data.message || data.error_description || 'E-posta gönderilemedi (Supabase limit veya ayar hatası).';
+        } else {
+          toast(L().t_codeSent);
+        }
+      } catch (e) {
+        if (err) err.textContent = 'Bağlantı hatası.';
+      }
+    }
+
+    function openAuthModal(defaultMode = 'login') {
+      authMode = defaultMode;
+      const d = L(), m = $('modal');
+      m.innerHTML = `<div class="modal" role="dialog" aria-modal="true">
+        <div class="row between" style="margin-bottom:8px">
+          <h2>${esc(d.authTitle)}</h2>
+          <button class="chip" data-a="closeModal">${esc(d.close)}</button>
+        </div>
+        <p class="mut" style="margin-top:0">${esc(d.authSub)}</p>
+        <div class="auth-tabs">
+          <button type="button" class="${authMode == 'login' ? 'on' : ''}" data-a="authTab" data-i="login">${esc(d.loginTab)}</button>
+          <button type="button" class="${authMode == 'reg' ? 'on' : ''}" data-a="authTab" data-i="reg">${esc(d.regTab)}</button>
+        </div>
+        <form id="f-auth">
+          ${authMode == 'reg' ? `<label>${esc(d.nameLbl)}<input name="ad" required maxlength="40" placeholder="${esc(d.namePh)}"></label>` : ''}
+          <label>${esc(d.emailLbl)}<input name="email" type="email" required maxlength="70" placeholder="${esc(d.emailPh)}"></label>
+          <label>${esc(d.passLbl)}<input name="pass" type="password" required minlength="6" maxlength="40" placeholder="${esc(d.passPh)}"></label>
+          <div id="auth-err" class="err" role="alert"></div>
+          <div style="margin-top:12px"><button id="auth-sub" class="btn" style="width:100%">${esc(authMode == 'login' ? d.loginBtn : d.regBtn)}</button></div>
+        </form>
+      </div>`;
+      m.hidden = false;
+    }
+
+    function openOtpModal() {
+      const u = getMe();
+      if (!u) return;
+      const d = L(), m = $('modal'), isAnnual = otpReason == 'annual';
+      m.innerHTML = `<div class="modal" role="dialog" aria-modal="true">
+        <div class="row between" style="margin-bottom:8px">
+          <h2>${esc(isAnnual ? d.otpAnnualTitle : d.otpTitle)}</h2>
+          <button class="chip" data-a="closeModal">${esc(d.close)}</button>
+        </div>
+        <p class="mut" style="margin-top:0"><b>${esc(u.email)}</b> ${esc(isAnnual ? d.otpAnnualDesc : d.otpDesc)}</p>
+        <form id="f-otp">
+          <input name="code" class="otp-input" inputmode="numeric" maxlength="6" required placeholder="000000" autocomplete="one-time-code">
+          <div id="otp-err" class="err" role="alert"></div>
+          <div style="margin-top:12px"><button id="otp-sub" class="btn" style="width:100%">${esc(d.otpBtn)}</button></div>
+        </form>
+        <div style="margin-top:10px;text-align:center">
+          <button type="button" id="resend-btn" class="chip" data-a="resendOtp">${esc(d.otpResend)}</button>
+        </div>
+      </div>`;
+      m.hidden = false;
+      updateResendButton();
+    }
+
+    function requireVerifiedStudent(onSuccess) {
+      const u = getMe();
+      if (!u) { openAuthModal('login'); return false; }
+      if (!u.verified) {
+        otpVerifyType = 'signup';
+        sendOtpCode(u.email, 'signup');
+        return false;
+      }
+      if (needsAnnualVerify(u)) {
+        otpVerifyType = 'email';
+        sendOtpCode(u.email, 'annual');
+        return false;
+      }
+      if (onSuccess) onSuccess();
+      return true;
+    }
+
+    async function translateItem(id) {
+      const x = state.ilanlar.find(y => y.id == id);
+      if (!x) return;
+      const key = id + '_' + lang;
+      if (trCache[key]) {
+        trCache[key].show = !trCache[key].show;
+        render();
+        if (!$('modal').hidden) openModal(id, false);
+        return;
+      }
+      trBusy[id] = true;
+      render();
+      if (!$('modal').hidden) openModal(id, false);
+      try {
+        const text = x.baslik + (x.acik ? '\n---\n' + x.acik : '');
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${lang}&dt=t&q=${encodeURIComponent(text)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const full = data[0].map(s => s[0]).join('');
+        const parts = full.split(/\n---\n/);
+        trCache[key] = { baslik: parts[0] || x.baslik, acik: parts[1] || '', show: true };
+      } catch (e) {
+        toast(L().t_trErr);
+      }
+      trBusy[id] = false;
+      render();
+      if (!$('modal').hidden) openModal(id, false);
+    }
+
+    function getDisplay(x) {
+      const c = trCache[x.id + '_' + lang];
+      if (c && c.show) return { baslik: c.baslik, acik: c.acik, isTr: true };
+      return { baslik: x.baslik, acik: x.acik, isTr: false };
+    }
+
+    function card(x) {
+      const d = L(), disp = getDisplay(x), cm = CAT_META[x.kat] || CAT_META['Diğer'], u = getMe();
+      const m = eslesen(x).length;
+      const p = /^\d+$/.test(x.fiyat) ? (+x.fiyat ? x.fiyat + ' ₺' : d.free) : esc(x.fiyat);
+      const h = iletisimLink(x.iletisim);
+      const sahip = u && x.sahip == u.id;
+      const fav = state.fav.includes(x.id);
+      const qCnt = (x.sorular || []).length;
+
+      return `<div class="card${x.durum ? ' kapali' : ''}">
+        <div>
+          <div class="row between">
+            <div class="row" style="gap:4px">
+              <span class="tag${x.tur == 'Aranıyor' ? ' ara' : ''}">${esc(d.types[x.tur] || x.tur)}</span>
+              ${x.acil && !x.durum ? `<span class="tag hot">${esc(d.acil)}</span>` : ''}
+              ${x.durum ? `<span class="tag">${esc(x.tur == 'Satılık' ? d.sold : d.found)}</span>` : ''}
+            </div>
+            <button class="fav-btn${fav ? ' on' : ''}" data-a="fav" data-i="${esc(x.id)}" aria-label="Favori">${fav ? '❤️' : '🤍'}</button>
+          </div>
+          <div class="clk" data-a="detay" data-i="${esc(x.id)}">
+            ${x.foto
+              ? `<img class="foto" src="${esc(x.foto)}" alt="${esc(disp.baslik)}">`
+              : `<div class="cover" style="background:${cm.bg}">${cm.ic}<span>${esc(d.cats[x.kat] || x.kat)}</span></div>`}
+            <div style="margin-top:8px;font-weight:700;font-size:15px">${esc(disp.baslik)}</div>
+            <div class="row" style="margin-top:4px;gap:5px">
+              <span class="price">${p}</span>
+              ${(x.fotolar || []).length > 1 ? `<span class="tag">📷 ${x.fotolar.length}</span>` : ''}
+              ${x.takas ? `<span class="tag ok">${esc(d.takas)}</span>` : ''}
+              ${x.pazarlik ? `<span class="tag warn hide-g">${esc(d.pazarlik)}</span>` : ''}
+            </div>
+            ${disp.acik ? `<div class="mut hide-g" style="margin-top:4px">${esc(disp.acik.length > 85 ? disp.acik.slice(0, 85) + '…' : disp.acik)}</div>` : ''}
+          </div>
+        </div>
+        <div>
+          <div class="mut" style="margin-top:6px;display:flex;justify-content:space-between">
+            <span>${x.sahipAd ? esc(x.sahipAd.split(' ')[0]) + ' · ' : ''}${ratingTag(x.sahip) ? ratingTag(x.sahip) + ' · ' : ''}${x.uni ? '🎓 ' + esc(uniName(x.uni)) + ' · ' : ''}${ago(x.t)}</span>
+            <span>👁️ ${x.goruntuleme || 1}${qCnt ? ` · 💬 ${qCnt}` : ''}</span>
+          </div>
+          <div class="row hide-g" style="margin-top:8px">
+            ${h && !x.durum ? `<a class="chip" href="${esc(h)}" target="_blank" rel="noopener">${esc(d.contact)}</a>` : ''}
+            <button class="chip" data-a="trItem" data-i="${esc(x.id)}">${trBusy[x.id] ? d.translating : (disp.isTr ? d.orig : d.translate)}</button>
+            ${m ? `<button class="chip" data-a="esl" data-i="${esc(x.id)}">🔗 ${m}</button>` : ''}
+            ${sahip ? `
+              <button class="chip" data-a="duzenle" data-i="${esc(x.id)}">${esc(d.edit)}</button>
+              <button class="chip" data-a="kapat" data-i="${esc(x.id)}">${esc(x.durum ? d.reopen : (x.tur == 'Satılık' ? d.markSold : d.markFound))}</button>
+              <button class="chip" data-a="sil" data-i="${esc(x.id)}">${esc(sd == x.id ? d.sure : d.del)}</button>
+            ` : ''}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function list() {
+      if (loading && !state.ilanlar.length) {
+        return `<div class="card"><p class="mut" style="margin:0;text-align:center">⏳ İlanlar yükleniyor...</p></div>`;
+      }
+      let Lst = state.ilanlar.filter(aktif);
+      if (esl) {
+        const x = state.ilanlar.find(y => y.id == esl);
+        if (x) Lst = eslesen(x);
+      }
+      const k = tr(q);
+      Lst = Lst.filter(x => {
+        if (cat != 'Tümü' && x.kat != cat) return false;
+        if (tur != 'Tümü' && x.tur != tur) return false;
+        if (fTag == 'takas' && !x.takas) return false;
+        if (fTag == 'free' && +x.fiyat !== 0) return false;
+        if (fTag == 'acil' && !x.acil) return false;
+        if (campusOnly) { const me = getMe(); if (!me || (x.uni !== uniOf(me.email) && x.sahip != me.id)) return false; }
+        return tr([x.baslik, x.acik, x.kat, x.sahipAd].join(' ')).includes(k);
+      });
+      if (!esl) {
+        Lst = [...Lst].sort((a, b) => {
+          if (!!a.durum !== !!b.durum) return !!a.durum - !!b.durum;
+          if (sirala == 'ucuz') return (+a.fiyat || 0) - (+b.fiyat || 0);
+          if (sirala == 'pahali') return (+b.fiyat || 0) - (+a.fiyat || 0);
+          if (sirala == 'pop') return (b.goruntuleme || 0) - (a.goruntuleme || 0);
+          return b.t - a.t;
+        });
+      }
+      const html = Lst.map(card).join('');
+      return html ? `<div class="${grid ? 'grid-view' : ''}">${html}</div>` : `<div class="card"><p class="mut" style="margin:0;text-align:center">${esc(L().noItems)}</p></div>`;
+    }
+
+    const chips = (A, cur, a, map) => `<div class="chips">${A.map(c => {
+      const ic = c == 'Tümü' ? '✨' : (CAT_META[c] ? CAT_META[c].ic : '');
+      return `<button class="chip${c == cur ? ' on' : ''}" data-a="${a}" data-i="${c}">${ic ? ic + ' ' : ''}${esc(c == 'Tümü' ? L().all : (map && map[c] || c))}</button>`;
+    }).join('')}</div>`;
+
+    function paz() {
+      const d = L(), u = getMe();
+      const A = state.ilanlar.filter(x => aktif(x) && !x.durum);
+      const sat = A.filter(x => x.tur == 'Satılık').length;
+      const free = A.filter(x => +x.fiyat === 0).length;
+
+      return `<div class="brand">
+        <span class="logo">🎓</span>
+        <h1>Uni<span>GO</span></h1>
+        <div style="margin-inline-start:auto;display:flex;gap:6px">
+          ${!u ? `<button class="chip on" data-a="openAuth">${esc(d.loginTab)}</button>` : ''}
+          <button class="chip tg" data-a="grid" aria-label="Görünüm">${grid ? '☰' : '⊞'}</button>
+          <button class="chip tg" data-a="lang" aria-label="Dil">${lang.toUpperCase()}</button>
+          <button class="chip tg" data-a="tema" aria-label="Tema">🌓</button>
+        </div>
+      </div>
+      <div class="hero">
+        <div>
+          <div style="font-weight:800;font-size:15.5px">${esc(d.heroTitle)}</div>
+          <div style="font-size:12px;opacity:.88">${esc(d.heroSub)}</div>
+          <div class="hero-stats">
+            <span><b>${sat}</b> ${esc(d.satilik)}</span>
+            <span><b>${A.length - sat}</b> ${esc(d.araniyor)}</span>
+            <span><b>${free}</b> ${esc(d.freeCnt)}</span>
+          </div>
+        </div>
+        <button class="btn sm" style="background:#fff;color:#0F172A;box-shadow:none;flex-shrink:0" data-a="tryPost">+ ${esc(d.navVer)}</button>
+      </div>
+      <input id="q" type="search" value="${esc(q)}" placeholder="🔍 ${esc(d.searchPh)}" style="margin-top:0">
+      ${chips(['Tümü', ...TYPES], tur, 'tur', d.types)}
+      ${chips(['Tümü', ...CATS], cat, 'cat', d.cats)}
+      <div class="row between" style="margin-top:4px">
+        <div class="row" style="gap:5px">
+          <button class="chip${campusOnly ? ' on' : ''}" data-a="campus">🎓 ${esc(u && uniOf(u.email) ? uniName(uniOf(u.email)) : d.campusOnly)}</button>
+          <button class="chip${fTag == 'takas' ? ' on' : ''}" data-a="fTag" data-i="takas">${esc(d.takasOnly)}</button>
+          <button class="chip${fTag == 'free' ? ' on' : ''}" data-a="fTag" data-i="free">${esc(d.freeOnly)}</button>
+          <button class="chip${fTag == 'acil' ? ' on' : ''}" data-a="fTag" data-i="acil">${esc(d.acilOnly)}</button>
+        </div>
+        <select id="sirala" class="mini" aria-label="Sırala">
+          <option value="yeni"${sirala == 'yeni' ? ' selected' : ''}>${esc(d.sortNew)}</option>
+          <option value="pop"${sirala == 'pop' ? ' selected' : ''}>${esc(d.sortPop)}</option>
+          <option value="ucuz"${sirala == 'ucuz' ? ' selected' : ''}>${esc(d.sortCheap)}</option>
+          <option value="pahali"${sirala == 'pahali' ? ' selected' : ''}>${esc(d.sortExp)}</option>
+        </select>
+      </div>
+      ${esl ? `<div style="margin-top:8px"><button class="chip on" data-a="eslx">${esc(d.remMatch)}</button></div>` : ''}
+      <div id="list" style="margin-top:10px">${list()}</div>`;
+    }
+
+    function ver() {
+      const d = L(), u = getMe();
+      if (!u || !u.verified || needsAnnualVerify(u)) {
+        return `<div class="card" style="text-align:center;padding:24px 16px">
+          
+          <h2>${esc(!u ? d.authTitle : d.otpTitle)}</h2>
+          <p class="mut">${esc(!u ? d.guestBanner : d.otpDesc)}</p>
+          <button class="btn" style="margin-top:10px" data-a="tryPost">${esc(!u ? d.loginTab : d.verifyNow)}</button>
+        </div>`;
+      }
+      const ex = editId ? state.ilanlar.find(x => x.id == editId) : null;
+      const defIletisim = ex ? ex.iletisim : (u.iletisim || '');
+
+      return `<div class="row between" style="margin-bottom:8px">
+        <h1>${esc(ex ? d.editTitle : d.postTitle)}</h1>
+        ${ex ? `<button class="chip" data-a="iptalEdit">${esc(d.cancel)}</button>` : ''}
+      </div>
+      <form id="f-ilan" class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <label style="margin-top:0">${esc(d.typeLbl)}<select name="tur">${TYPES.map(t => `<option value="${t}"${ex && ex.tur == t ? ' selected' : ''}>${esc(d.types[t] || t)}</option>`).join('')}</select></label>
+          <label style="margin-top:0">${esc(d.catLbl)}<select name="kat">${CATS.map(c => `<option value="${c}"${ex && ex.kat == c ? ' selected' : ''}>${esc(d.cats[c] || c)}</option>`).join('')}</select></label>
+        </div>
+        <label>${esc(d.titleLbl)}<input name="baslik" required maxlength="80" value="${ex ? esc(ex.baslik) : ''}"></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <label>${esc(d.priceLbl)}<input name="fiyat" required inputmode="numeric" maxlength="6" placeholder="${esc(d.pricePh)}" value="${ex ? esc(ex.fiyat) : ''}"></label>
+          <label>${esc(d.condLbl)}<select name="kondisyon">${CONDS.map(k => `<option value="${k}"${ex && ex.kondisyon == k ? ' selected' : ''}>${esc(d.conds[k] || k)}</option>`).join('')}</select></label>
+        </div>
+        <div style="margin-top:4px">
+          <label class="chk-pill"><input type="checkbox" name="takas"${ex && ex.takas ? ' checked' : ''}>${esc(d.swapChk)}</label>
+          <label class="chk-pill"><input type="checkbox" name="pazarlik"${ex && ex.pazarlik ? ' checked' : ''}>${esc(d.negChk)}</label>
+          <label class="chk-pill"><input type="checkbox" name="acil"${ex && ex.acil ? ' checked' : ''}>${esc(d.urgChk)}</label>
+        </div>
+        <label>${esc(d.contactLbl)} ${!ex && u.iletisim ? `<span class="tag ok">${esc(d.fromProf)}</span>` : ''}
+          <input name="iletisim" required maxlength="60" placeholder="${esc(d.contactPh)}" value="${esc(defIletisim)}">
+        </label>
+        <label>${esc(d.descLbl)}<textarea name="acik" rows="3" maxlength="300">${ex ? esc(ex.acik) : ''}</textarea></label>
+        <label>${esc(d.photosLbl)}<input type="file" id="foto" accept="image/*" multiple></label>
+        <div class="pv" id="pv">${pvHtml()}</div>
+        <div id="err" class="err" role="alert"></div>
+        <div style="margin-top:12px"><button id="pub-btn" class="btn" style="width:100%">${esc(ex ? d.saveChanges : d.publish)}</button></div>
+      </form>`;
+    }
+
+    function prof() {
+      const d = L(), u = getMe();
+      if (!u) {
+        return `<div class="card" style="text-align:center;padding:28px 16px">
+          
+          <h2>${esc(d.authTitle)}</h2>
+          <p class="mut">${esc(d.authSub)}</p>
+          <div class="row" style="justify-content:center;margin-top:14px">
+            <button class="btn" data-a="openAuth">${esc(d.loginTab)} / ${esc(d.regTab)}</button>
+          </div>
+        </div>`;
+      }
+
+      const benim = state.ilanlar.filter(x => x.sahip == u.id);
+      const favoriler = state.ilanlar.filter(x => state.fav.includes(x.id));
+      const aktifSay = benim.filter(x => aktif(x) && !x.durum).length;
+      const basHarf = (u.ad || u.email || 'U').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      const annualDue = needsAnnualVerify(u);
+
+      let icerik = '';
+      if (ptab == 'ilanlar') {
+        icerik = benim.length
+          ? benim.map(card).join('')
+          : `<div class="card" style="text-align:center"><p class="mut" style="margin:0">${esc(d.noMyAds)}</p><button class="btn sm" style="margin-top:10px" data-a="tryPost">${esc(d.firstAd)}</button></div>`;
+      } else if (ptab == 'favoriler') {
+        icerik = favoriler.length
+          ? favoriler.map(card).join('')
+          : `<div class="card" style="text-align:center"><p class="mut" style="margin:0">${esc(d.noFavs)}</p></div>`;
+      } else {
+        const isLocked = !profEditing && !!(u.ad || u.bolum || u.sinif || u.iletisim);
+        const disAttr = isLocked ? ' disabled style="opacity:.82"' : '';
+        icerik = `<form id="f-profil" class="card">
+          <h2>${esc(d.stuInfo)}</h2>
+          <label>${esc(d.eduLbl)}
+            ${u.verified && !annualDue ? `<span class="tag ok">${esc(d.verified)}</span>` : `<span class="tag warn">${esc(d.unverified)}</span>`}
+            <div class="row" style="margin-top:4px">
+              <input value="${esc(u.email)}" disabled style="flex:1;margin:0;opacity:.8">
+              ${!u.verified || annualDue ? `<button type="button" class="btn sm" data-a="verifySelf">${esc(u.verified ? d.reverifyBtn : d.verifyNow)}</button>` : ''}
+            </div>
+          </label>
+          <label>${esc(d.nameLbl)}<input name="ad" value="${esc(u.ad || '')}" maxlength="40" placeholder="${esc(d.namePh)}"${disAttr}></label>
+          <label>${esc(d.deptLbl)}
+            <select name="bolum"${disAttr}>
+              <option value="">${esc(d.select)}</option>
+              <optgroup label="${esc(d.grpFakulte)}">
+                ${DEPARTMENTS.fakulte.map(b => `<option value="${esc(b)}"${u.bolum == b ? ' selected' : ''}>${esc(b)}</option>`).join('')}
+              </optgroup>
+              <optgroup label="${esc(d.grpYuksekokul)}">
+                ${DEPARTMENTS.yuksekokul.map(b => `<option value="${esc(b)}"${u.bolum == b ? ' selected' : ''}>${esc(b)}</option>`).join('')}
+              </optgroup>
+              ${u.bolum && !DEPARTMENTS.fakulte.includes(u.bolum) && !DEPARTMENTS.yuksekokul.includes(u.bolum) ? `<option value="${esc(u.bolum)}" selected>${esc(u.bolum)}</option>` : ''}
+            </select>
+          </label>
+          <label>${esc(d.classLbl)}<select name="sinif"${disAttr}><option value="">${esc(d.select)}</option>${GRADES.map(s => `<option value="${s}"${u.sinif == s ? ' selected' : ''}>${esc(d.classes[s] || s)}</option>`).join('')}</select></label>
+          <label>${esc(d.defContactLbl)}
+            <input name="iletisim" value="${esc(u.iletisim || '')}" maxlength="60" placeholder="${esc(d.contactPh)}"${disAttr}>
+          </label>
+          <div style="margin-top:12px">
+            ${isLocked
+              ? `<button type="button" class="btn g" style="width:100%" data-a="editProfBtn">✏️ ${esc(d.editProf)}</button>`
+              : `<button class="btn" style="width:100%">${esc(d.saveInfo)}</button>`}
+          </div>
+        </form>
+        <div class="card">
+          <h2>${esc(d.appData)}</h2>
+          
+          ${/iphone|ipad/i.test(navigator.userAgent) && !navigator.standalone ? `<p class="mut" style="margin-top:0">📲 ${esc(d.iosHint)}</p>` : ''}
+          <div class="row">
+            ${deferredInstall ? `<button class="btn g sm" data-a="install">📲 ${esc(d.installApp)}</button>` : ''}
+            <button class="btn danger sm" data-a="logout">${esc(d.logoutBtn)}</button>
+          </div>
+        </div>`;
+      }
+
+      return `<div class="card">
+        <div class="p-head">
+          <div class="avatar">${esc(basHarf)}</div>
+          <div style="min-width:0;flex:1">
+            <div class="row" style="gap:6px">
+              <b style="font-size:18px">${esc(u.ad || u.email.split('@')[0])}</b>
+              ${u.verified && !annualDue ? '<span class="tag ok">✓ .edu.tr</span>' : '<span class="tag warn">⚠️ Doğrula</span>'}
+            </div>
+            <div class="mut">${esc([u.bolum, d.classes[u.sinif] || u.sinif].filter(Boolean).join(' · ') || u.email)}</div>
+            ${sellerStats(u.id) ? `<div class="mut">${ratingTag(u.id)} ${esc(d.ratingCnt)}</div>` : ''}
+          </div>
+        </div>
+        <div class="stats">
+          <div><b>${aktifSay}</b><span class="mut">${esc(d.actAds)}</span></div>
+          <div><b>${benim.length - aktifSay}</b><span class="mut">${esc(d.doneAds)}</span></div>
+          <div><b>${favoriler.length}</b><span class="mut">${esc(d.favs)}</span></div>
+        </div>
+      </div>
+      <div class="seg">
+        <button class="${ptab == 'ilanlar' ? 'on' : ''}" data-a="ptab" data-i="ilanlar">${esc(d.myAds)} (${benim.length})</button>
+        <button class="${ptab == 'favoriler' ? 'on' : ''}" data-a="ptab" data-i="favoriler">${esc(d.myFavs)} (${favoriler.length})</button>
+        <button class="${ptab == 'ayarlar' ? 'on' : ''}" data-a="ptab" data-i="ayarlar">${esc(d.settings)}</button>
+      </div>
+      ${icerik}`;
+    }
+
+    async function openModal(id, incView = true) {
+      const x = state.ilanlar.find(y => y.id == id);
+      if (!x) return;
+      const curU = getMe();
+      if (incView && (!curU || curU.id !== x.sahip)) {
+        x.goruntuleme = (x.goruntuleme || 0) + 1;
+        sv();
+        fetch(`${sbBase()}/rest/v1/rpc/unigo_view`, {
+          method: 'POST',
+          headers: sbHeaders(false),
+          body: JSON.stringify({ p_id: String(id) })
+        }).catch(() => {});
+      }
+      const d = L(), disp = getDisplay(x), cm = CAT_META[x.kat] || CAT_META['Diğer'], u = getMe();
+      const sahip = u && x.sahip == u.id;
+      const p = /^\d+$/.test(x.fiyat) ? (+x.fiyat ? x.fiyat + ' ₺' : d.free) : esc(x.fiyat);
+      const h = iletisimLink(x.iletisim);
+      const fav = state.fav.includes(x.id);
+      const sorular = x.sorular || [];
+      const fl = (x.fotolar && x.fotolar.length) ? x.fotolar : (x.foto ? [x.foto] : []);
+      const rv = reviews.filter(v => v.seller_id == x.sahip), st = sellerStats(x.sahip);
+      const mine = u ? rv.find(v => v.reviewer_id == u.id) : null;
+      const reviewsHtml = `<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+          <h2 style="font-size:15px">${esc(d.reviewsTitle)}${st ? ` · <span class="stars">★</span> ${st.avg.toFixed(1)} (${st.n})` : ''}</h2>
+          ${!sahip ? `<form id="f-review" data-id="${esc(x.id)}" data-seller="${esc(x.sahip)}" class="row" style="margin-bottom:8px">
+            <select name="puan" style="flex:0 0 auto;margin:0;min-height:38px">${[5, 4, 3, 2, 1].map(n => `<option value="${n}"${mine && mine.rating == n ? ' selected' : ''}>${n} ${'★'.repeat(n)}</option>`).join('')}</select>
+            <input name="yorum" maxlength="140" placeholder="${esc(d.ratePh)}" value="${mine ? esc(mine.comment || '') : ''}" style="flex:1;margin:0;min-height:38px;min-width:120px">
+            <button class="btn sm">${esc(d.rateSend)}</button>
+          </form>` : ''}
+          ${rv.length ? rv.slice(0, 5).map(v => `<div class="qa-item">
+            <div class="row between"><b style="font-size:12.5px">${esc(v.reviewer_name || d.stuUser)}</b><span class="stars">${starStr(v.rating)}</span></div>
+            ${v.comment ? `<div style="font-size:13.5px;margin-top:3px">${esc(v.comment)}</div>` : ''}
+            <div class="mut" style="margin-top:2px">${ago(Number(v.created_at) || Date.now())}</div>
+          </div>`).join('') : `<p class="mut" style="margin:4px 0">${esc(d.noReviews)}</p>`}
+        </div>`;
+      const m = $('modal');
+
+      m.innerHTML = `<div class="modal" role="dialog" aria-modal="true">
+        <div class="row between" style="margin-bottom:10px">
+          <div class="row" style="gap:5px">
+            <span class="tag${x.tur == 'Aranıyor' ? ' ara' : ''}">${esc(d.types[x.tur] || x.tur)}</span>
+            <span class="tag">${esc(d.cats[x.kat] || x.kat)}</span>
+            ${x.kondisyon ? `<span class="tag">${esc(d.conds[x.kondisyon] || x.kondisyon)}</span>` : ''}
+            ${x.takas ? `<span class="tag ok">${esc(d.takas)}</span>` : ''}
+            ${x.pazarlik ? `<span class="tag warn">${esc(d.pazarlik)}</span>` : ''}
+          </div>
+          <div class="row" style="gap:5px">
+            <button class="chip" data-a="trItem" data-i="${esc(x.id)}">${trBusy[x.id] ? d.translating : (disp.isTr ? d.orig : d.translate)}</button>
+            <button class="chip" data-a="closeModal">${esc(d.close)}</button>
+          </div>
+        </div>
+        <h2 style="font-size:20px;margin-bottom:4px">${esc(disp.baslik)}</h2>
+        <div class="row between" style="margin-bottom:8px">
+          <div style="font-size:22px;font-weight:900;color:var(--acc)">${p}</div>
+          <span class="mut">👁️ ${x.goruntuleme || 1} ${esc(d.views)}</span>
+        </div>
+        ${fl.length
+          ? `<img id="gmain" class="foto" src="${esc(fl[0])}" alt="${esc(disp.baslik)}" style="margin-bottom:${fl.length > 1 ? 6 : 10}px">${fl.length > 1 ? `<div class="thumbs">${fl.map((src, k) => `<img class="${k == 0 ? 'on' : ''}" src="${esc(src)}" data-a="gfoto" data-i="${esc(src)}" alt="">`).join('')}</div>` : ''}`
+          : `<div class="cover" style="background:${cm.bg};height:110px;margin-bottom:10px">${cm.ic}</div>`}
+        <p style="margin:8px 0;white-space:pre-line">${esc(disp.acik || d.noDesc)}</p>
+        <div class="card" style="background:var(--card2);margin-top:12px">
+          <div class="row between">
+            <div>
+              <div class="mut">${esc(d.owner)}</div>
+              <b>${esc(x.sahipAd || d.stuUser)}</b> ${ratingTag(x.sahip)}${x.uni ? ` <span class="tag">🎓 ${esc(uniName(x.uni))}</span>` : ''}
+              <div class="mut" style="margin-top:2px">${esc(d.contact)}: ${esc(x.iletisim)} · ${ago(x.t)}</div>
+            </div>
+            <div class="row" style="gap:5px">
+              <button class="chip" data-a="share" data-i="${esc(x.id)}">${esc(d.share)}</button>
+              ${!sahip ? `<button class="chip" data-a="report" data-i="${esc(x.id)}">${esc(d.report)}</button>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          ${h && !x.durum ? `<a class="btn" style="flex:1" href="${esc(h)}" target="_blank" rel="noopener">${esc(d.contactBig)}</a>` : ''}
+          <button class="btn g" data-a="fav" data-i="${esc(x.id)}">${esc(fav ? d.favedBtn : d.favBtn)}</button>
+        </div>
+
+        ${reviewsHtml}
+
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+          <h2 style="font-size:15px">${esc(d.qaTitle)} (${sorular.length})</h2>
+          <form id="f-qa" data-id="${esc(x.id)}" class="row" style="margin-bottom:8px">
+            <input name="soru" required maxlength="140" placeholder="${esc(d.qaPh)}" style="flex:1;margin:0;min-height:38px">
+            <button class="btn sm">${esc(d.qaSend)}</button>
+          </form>
+          ${sorular.length ? sorular.map((s, idx) => `<div class="qa-item">
+            <div class="row between"><b style="font-size:12.5px">${esc(s.kim)}</b><span class="mut">${ago(s.t)}</span></div>
+            <div style="font-size:13.5px;margin-top:3px">${esc(s.metin)}</div>
+            ${s.cevap
+              ? `<div class="qa-ans"><b>${esc(x.sahipAd || d.owner)}:</b> ${esc(s.cevap)}</div>`
+              : (sahip ? `<form class="f-ans row" data-id="${esc(x.id)}" data-idx="${idx}" style="margin-top:6px">
+                  <input name="cevap" required maxlength="140" placeholder="${esc(d.ansPh)}" style="flex:1;margin:0;min-height:34px;font-size:16px">
+                  <button class="btn sm" style="min-height:34px">${esc(d.ansSend)}</button>
+                </form>` : '')}
+          </div>`).join('') : `<p class="mut" style="margin:4px 0">${esc(d.noQa)}</p>`}
+        </div>
+      </div>`;
+      m.hidden = false;
+    }
+
+    function render() {
+      const d = L();
+      $('app').innerHTML = ({ paz, ver, prof })[tab]();
+      $('nav').innerHTML = [
+        ['paz', d.navPaz, '🛍️'],
+        ['ver', editId ? d.navEdit : d.navVer, editId ? '✏️' : '➕'],
+        ['prof', d.navProf, '👤']
+      ].map(([k, t, i]) => `<button class="${k == tab ? 'on' : ''}" data-a="tab" data-i="${k}"${k == tab ? ' aria-current="page"' : ''}><span class="ic">${i}</span>${esc(t)}</button>`).join('');
+    }
+
+    document.addEventListener('click', async e => {
+      if (e.target.id == 'modal') { $('modal').hidden = true; render(); return; }
+      const b = e.target.closest('[data-a]');
+      if (!b) return;
+      const a = b.dataset.a, i = b.dataset.i, d = L();
+      if (a != 'sil') sd = '';
+
+      if (a == 'tryPost') { requireVerifiedStudent(() => { tab = 'ver'; editId = ''; fotos = []; render(); }); return; }
+      if (a == 'tab') {
+        if (i == 'ver') { requireVerifiedStudent(() => { tab = 'ver'; render(); }); return; }
+        tab = i;
+        if (i != 'ver') { editId = ''; fotos = []; }
+      }
+      else if (a == 'openAuth') { openAuthModal('login'); return; }
+      else if (a == 'authTab') { openAuthModal(i); return; }
+      else if (a == 'verifySelf') {
+        const u = getMe();
+        if (u) {
+          otpVerifyType = u.verified ? 'email' : 'signup';
+          sendOtpCode(u.email, u.verified ? 'annual' : 'signup');
+        }
+        return;
+      }
+      else if (a == 'resendOtp') {
+        const u = getMe();
+        if (u) sendOtpCode(u.email, otpReason);
+        return;
+      }
+      else if (a == 'logout') { state.curUser = ''; state.token = ''; state.refresh = ''; sv(); tab = 'paz'; toast(d.t_logout); }
+      else if (a == 'grid') { grid = !grid; }
+      else if (a == 'lang') { lang = LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]; try { localStorage.setItem('unigo_lang', lang); } catch (e) {} applyLangDir(); }
+      else if (a == 'trItem') { translateItem(i); return; }
+      else if (a == 'ptab') { ptab = i; profEditing = false; }
+      else if (a == 'editProfBtn') { profEditing = true; }
+      else if (a == 'tur') tur = i;
+      else if (a == 'cat') cat = i;
+      else if (a == 'fTag') fTag = fTag == i ? '' : i;
+      else if (a == 'esl') { esl = i; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      else if (a == 'eslx') esl = '';
+      else if (a == 'detay') { openModal(i, true); return; }
+      else if (a == 'closeModal') { $('modal').hidden = true; render(); return; }
+      else if (a == 'share') {
+        const x = state.ilanlar.find(y => y.id == i);
+        if (x) {
+          const txt = `UniGO | ${x.tur}: ${x.baslik} - ${+x.fiyat ? x.fiyat + ' ₺' : d.free} (${x.iletisim})`;
+          if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+          toast(d.t_share);
+        }
+        return;
+      }
+      else if (a == 'fav') {
+        if (state.fav.includes(i)) { state.fav = state.fav.filter(x => x != i); toast(d.t_favRem); }
+        else { state.fav.push(i); toast(d.t_favAdd); }
+        sv();
+        saveFavs();
+        if (!$('modal').hidden) openModal(i, false);
+      }
+      else if (a == 'duzenle') { const x = state.ilanlar.find(y => y.id == i); if (x) { editId = x.id; fotos = (x.fotolar && x.fotolar.length ? x.fotolar : (x.foto ? [x.foto] : [])).slice(); tab = 'ver'; } }
+      else if (a == 'iptalEdit') { editId = ''; fotos = []; tab = 'prof'; }
+      else if (a == 'fotoSil') { fotos.splice(+i, 1); renderPv(); return; }
+      else if (a == 'gfoto') {
+        const mi = $('gmain');
+        if (mi) mi.src = i;
+        document.querySelectorAll('.thumbs img').forEach(im => im.classList.toggle('on', im === b));
+        return;
+      }
+      else if (a == 'campus') {
+        if (!getMe()) { toast(d.campusLogin); openAuthModal('login'); return; }
+        campusOnly = !campusOnly;
+      }
+      else if (a == 'report') { openReportModal(i); return; }
+      else if (a == 'install') {
+        if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; }
+      }
+      else if (a == 'sil') {
+        if (sd == i) {
+          state.ilanlar = state.ilanlar.filter(x => x.id != i);
+          state.fav = state.fav.filter(x => x != i);
+          if (esl == i) esl = '';
+          sd = '';
+          sv();
+          toast(d.t_del);
+          fetch(`${sbBase()}/rest/v1/unigo_listings?id=eq.${encodeURIComponent(i)}`, {
+            method: 'DELETE',
+            headers: sbHeaders(true)
+          }).catch(() => {});
+        } else sd = i;
+      }
+      else if (a == 'kapat') {
+        const x = state.ilanlar.find(y => y.id == i);
+        if (x) {
+          x.durum = x.durum ? '' : 'kapali';
+          sv();
+          fetch(`${sbBase()}/rest/v1/unigo_listings?id=eq.${encodeURIComponent(i)}`, {
+            method: 'PATCH',
+            headers: sbHeaders(true),
+            body: JSON.stringify({ durum: x.durum })
+          }).catch(() => {});
+        }
+      }
+      else if (a == 'tema') {
+        const r = document.documentElement;
+        const dk = (r.dataset.theme || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light')) == 'dark';
+        r.dataset.theme = dk ? 'light' : 'dark';
+        try { localStorage.setItem('unigo_theme', r.dataset.theme); } catch (e) {}
+      }
+      render();
+    });
+
+    document.addEventListener('submit', async e => {
+      e.preventDefault();
+      const t = e.target, f = Object.fromEntries(new FormData(t)), d = L();
+
+      if (t.id == 'f-auth') {
+        const err = $('auth-err'), btn = $('auth-sub');
+        err.textContent = '';
+        const email = tr(f.email.trim()), pass = String(f.pass || '');
+        if (!isEdu(email)) { err.textContent = d.e_eduOnly; return; }
+        if (pass.length < 6) { err.textContent = d.e_pass; return; }
+
+        btn.disabled = true;
+        try {
+          if (authMode == 'reg') {
+            const res = await fetch(`${sbBase()}/auth/v1/signup`, {
+              method: 'POST',
+              headers: sbHeaders(false),
+              body: JSON.stringify({ email, password: pass, data: { ad: (f.ad || '').trim() } })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              err.textContent = data.msg || data.error_description || d.e_exists;
+              btn.disabled = false;
+              return;
+            }
+            // Supabase: mail zaten kayıtlıysa hata vermez, identities boş döner
+            const su = data.user || data;
+            if (su && Array.isArray(su.identities) && su.identities.length === 0) {
+              toast(d.e_taken);
+              openAuthModal('login');
+              const loginEmailInput = document.querySelector('#f-auth input[name="email"]');
+              const loginPassInput = document.querySelector('#f-auth input[name="pass"]');
+              if (loginEmailInput) loginEmailInput.value = email;
+              if (loginPassInput) loginPassInput.focus();
+              return;
+            }
+            const uidVal = (data.user && data.user.id) || data.id || 'u_' + uid();
+            state.users[email] = { id: uidVal, email, ad: (f.ad || '').trim(), bolum: '', sinif: '', iletisim: '', verified: false, verifiedAt: 0 };
+            state.curUser = email;
+            if (data.access_token) { state.token = data.access_token; state.refresh = data.refresh_token || state.refresh; }
+            sv();
+
+            if (data.access_token) {
+              otpVerifyType = 'email';
+              await sendOtpCode(email, 'signup');
+            } else {
+              otpReason = 'signup';
+              otpVerifyType = 'signup';
+              toast(d.t_codeSent);
+              openOtpModal();
+              startOtpCooldown();
+            }
+            render();
+          } else {
+            const res = await fetch(`${sbBase()}/auth/v1/token?grant_type=password`, {
+              method: 'POST',
+              headers: sbHeaders(false),
+              body: JSON.stringify({ email, password: pass })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              if (String(data.error_code || data.msg || '').toLowerCase().includes('confirm')) {
+                state.users[email] = state.users[email] || { id: 'u_' + uid(), email, ad: email.split('@')[0], bolum: '', sinif: '', iletisim: '', verified: false, verifiedAt: 0 };
+                state.curUser = email;
+                sv();
+                otpVerifyType = 'signup';
+                await sendOtpCode(email, 'signup');
+                render();
+                return;
+              }
+              err.textContent = d.e_login;
+              btn.disabled = false;
+              return;
+            }
+            const prev = state.users[email] || {};
+            state.users[email] = {
+              id: data.user.id,
+              email,
+              ad: prev.ad || (data.user.user_metadata && data.user.user_metadata.ad) || email.split('@')[0],
+              bolum: prev.bolum || '',
+              sinif: prev.sinif || '',
+              iletisim: prev.iletisim || '',
+              verified: true,
+              verifiedAt: prev.verifiedAt || Date.now()
+            };
+            state.curUser = email;
+            state.token = data.access_token;
+            state.refresh = data.refresh_token || '';
+            sv();
+            await loadProfile(state.users[email]);
+            $('modal').hidden = true;
+            toast(d.t_loginOk);
+            render();
+            if (needsAnnualVerify(state.users[email])) {
+              otpVerifyType = 'email';
+              await sendOtpCode(email, 'annual');
+            }
+          }
+        } catch (ex) {
+          err.textContent = 'Bağlantı hatası.';
+        }
+        btn.disabled = false;
+        return;
+      }
+
+      if (t.id == 'f-otp') {
+        const err = $('otp-err'), btn = $('otp-sub');
+        err.textContent = '';
+        const code = String(f.code || '').trim();
+        const u = getMe();
+        if (!u) return;
+
+        btn.disabled = true;
+        try {
+          const res = await fetch(`${sbBase()}/auth/v1/verify`, {
+            method: 'POST',
+            headers: sbHeaders(false),
+            body: JSON.stringify({ email: u.email, token: code, type: otpVerifyType })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            err.textContent = d.e_otp;
+            btn.disabled = false;
+            return;
+          }
+          if (data.access_token) { state.token = data.access_token; state.refresh = data.refresh_token || state.refresh; }
+          if (data.user && data.user.id) u.id = data.user.id;
+        } catch (ex) {
+          err.textContent = d.e_otp;
+          btn.disabled = false;
+          return;
+        }
+        btn.disabled = false;
+        u.verified = true;
+        u.verifiedAt = Date.now();
+        sv();
+        $('modal').hidden = true;
+        toast(d.t_verified);
+        tab = 'ver';
+        render();
+        return;
+      }
+
+      if (t.id == 'f-qa') {
+        const u = getMe();
+        if (!u) { openAuthModal('login'); return; }
+        const x = state.ilanlar.find(y => y.id == t.dataset.id);
+        if (x && f.soru.trim()) {
+          x.sorular = x.sorular || [];
+          const yeniSoru = { kim: u.ad || u.email.split('@')[0], metin: f.soru.trim(), cevap: '', t: Date.now() };
+          x.sorular.push(yeniSoru);
+          sv();
+          toast(d.t_qa);
+          openModal(x.id, false);
+          fetch(`${sbBase()}/rest/v1/rpc/unigo_ask`, {
+            method: 'POST',
+            headers: sbHeaders(true),
+            body: JSON.stringify({ p_id: String(x.id), p_q: yeniSoru })
+          }).catch(() => {});
+        }
+        return;
+      }
+
+      if (t.classList.contains('f-ans')) {
+        const u = getMe();
+        const x = state.ilanlar.find(y => y.id == t.dataset.id);
+        const idx = +t.dataset.idx;
+        if (u && x && x.sahip == u.id && x.sorular && x.sorular[idx] && f.cevap.trim()) {
+          x.sorular[idx].cevap = f.cevap.trim();
+          sv();
+          toast(d.t_ans);
+          openModal(x.id, false);
+          fetch(`${sbBase()}/rest/v1/unigo_listings?id=eq.${encodeURIComponent(x.id)}`, {
+            method: 'PATCH',
+            headers: sbHeaders(true),
+            body: JSON.stringify({ sorular: x.sorular })
+          }).catch(() => {});
+        }
+        return;
+      }
+
+      if (t.id == 'f-review') {
+        const u = getMe();
+        if (!u || !state.token) { openAuthModal('login'); return; }
+        if (!u.verified || needsAnnualVerify(u)) { requireVerifiedStudent(); return; }
+        const sellerId = t.dataset.seller;
+        if (!sellerId || sellerId == u.id) return;
+        const row = {
+          seller_id: sellerId, reviewer_id: u.id, listing_id: t.dataset.id,
+          rating: +f.puan, comment: String(f.yorum || '').trim().slice(0, 140),
+          reviewer_name: u.ad || u.email.split('@')[0], created_at: Date.now()
+        };
+        if (!(row.rating >= 1 && row.rating <= 5)) return;
+        try {
+          const res = await fetch(`${sbBase()}/rest/v1/unigo_reviews?on_conflict=seller_id,reviewer_id`, {
+            method: 'POST',
+            headers: { ...sbHeaders(true), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+            body: JSON.stringify(row)
+          });
+          if (!res.ok) { toast(d.e_rated); return; }
+        } catch (ex) { toast(d.e_rated); return; }
+        reviews = reviews.filter(v => !(v.seller_id == row.seller_id && v.reviewer_id == row.reviewer_id));
+        reviews.unshift(row);
+        toast(d.t_rated);
+        openModal(t.dataset.id, false);
+        return;
+      }
+
+      if (t.id == 'f-report') {
+        const u = getMe(), er = $('rep-err');
+        if (!u || !state.token) { openAuthModal('login'); return; }
+        try {
+          const res = await fetch(`${sbBase()}/rest/v1/unigo_reports?on_conflict=listing_id,reporter_id`, {
+            method: 'POST',
+            headers: { ...sbHeaders(true), 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+            body: JSON.stringify({ listing_id: t.dataset.id, reporter_id: u.id, reason: f.neden, note: String(f.not || '').trim().slice(0, 200) })
+          });
+          if (!res.ok) { if (er) er.textContent = d.e_report; return; }
+        } catch (ex) { if (er) er.textContent = d.e_report; return; }
+        $('modal').hidden = true;
+        toast(d.t_reported);
+        render();
+        return;
+      }
+
+      const hata = m => { $('err').textContent = m; };
+      if (t.id == 'f-ilan') {
+        const u = getMe();
+        if (!u || !u.verified || needsAnnualVerify(u)) { requireVerifiedStudent(); return; }
+        const bs = f.baslik.trim(), fy = f.fiyat.trim(), ic = f.iletisim.trim();
+        if (bs.length < 3) return hata(d.e_title);
+        if (!/^\d{1,6}$/.test(fy)) return hata(d.e_price);
+        if (ic.length < 3) return hata(d.e_contact);
+
+        const payload = {
+          tur: TYPES.includes(f.tur) ? f.tur : 'Satılık',
+          baslik: bs,
+          kat: CATS.includes(f.kat) ? f.kat : 'Diğer',
+          kondisyon: CONDS.includes(f.kondisyon) ? f.kondisyon : 'İyi Durumda',
+          fiyat: fy,
+          takas: !!f.takas,
+          pazarlik: !!f.pazarlik,
+          acil: !!f.acil,
+          iletisim: ic,
+          acik: f.acik.trim(),
+          foto: '',
+          fotolar: []
+        };
+        const btn = $('pub-btn');
+        if (btn) btn.disabled = true;
+        if (fotos.some(s => String(s).startsWith('data:'))) toast(d.uploading);
+        const urls = await uploadPhotos(fotos, u);
+        payload.foto = urls[0] || '';
+        payload.fotolar = urls;
+
+        if (editId) {
+          const idx = state.ilanlar.findIndex(x => x.id == editId);
+          if (idx > -1) {
+            state.ilanlar[idx] = { ...state.ilanlar[idx], ...payload, sahipAd: u.ad || state.ilanlar[idx].sahipAd };
+            await sbWrite('PATCH', `${sbBase()}/rest/v1/unigo_listings?id=eq.${encodeURIComponent(editId)}`,
+              { ...payload, sahip_ad: state.ilanlar[idx].sahipAd }, ['fotolar']).catch(() => {});
+            save();
+            toast(d.t_upd);
+          }
+          editId = '';
+          fotos = [];
+          tab = 'prof';
+          ptab = 'ilanlar';
+        } else {
+          const now = Date.now(), newId = uid(), sahipAd = u.ad || u.email.split('@')[0];
+          const n = { id: newId, t: now, sahip: u.id, sahipAd, durum: '', goruntuleme: 1, sorular: [], uni: uniOf(u.email), ...payload };
+          try {
+            const res = await sbWrite('POST', `${sbBase()}/rest/v1/unigo_listings`, {
+              id: newId, user_id: u.id, tur: n.tur, baslik: n.baslik, kat: n.kat, kondisyon: n.kondisyon,
+              fiyat: n.fiyat, takas: n.takas, pazarlik: n.pazarlik, acil: n.acil, iletisim: n.iletisim,
+              acik: n.acik, foto: n.foto, fotolar: n.fotolar, uni: n.uni, sahip_ad: sahipAd, durum: '', goruntuleme: 1, sorular: [], created_at: now
+            }, ['fotolar', 'uni']);
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              if (btn) btn.disabled = false;
+              return hata(errData.message || 'İlan kaydedilemedi.');
+            }
+          } catch (ex) {
+            if (btn) btn.disabled = false;
+            return hata('Bağlantı hatası.');
+          }
+          if (!u.iletisim) {
+            u.iletisim = ic;
+            saveProfile(u);
+          }
+          state.ilanlar.unshift(n);
+          save();
+          const m = eslesen(n).length;
+          toast(m ? `${d.t_pubMatch} ${m}` : d.t_pub);
+          fotos = [];
+          tab = 'paz';
+          cat = 'Tümü';
+          tur = 'Tümü';
+          fTag = '';
+          q = '';
+          esl = m ? n.id : '';
+        }
+      }
+      else if (t.id == 'f-profil') {
+        const u = getMe();
+        if (!u) return;
+        u.ad = f.ad.trim();
+        u.bolum = f.bolum.trim();
+        u.sinif = f.sinif;
+        u.iletisim = f.iletisim.trim();
+        state.ilanlar.forEach(x => { if (x.sahip == u.id) x.sahipAd = u.ad || u.email.split('@')[0]; });
+        saveProfile(u);
+        profEditing = false;
+        toast(d.t_prof);
+      }
+      sv();
+      render();
+    });
+
+    document.addEventListener('input', e => {
+      if (e.target.id == 'q') {
+        q = e.target.value;
+        $('list').innerHTML = list();
+      }
+    });
+
+    document.addEventListener('change', async e => {
+      if (e.target.id == 'sirala') {
+        sirala = e.target.value;
+        $('list').innerHTML = list();
+        return;
+      }
+      if (e.target.id != 'foto') return;
+      const files = [...e.target.files];
+      e.target.value = '';
+      if (!files.length) return;
+      const room = 4 - fotos.length;
+      if (room <= 0 || files.length > room) toast(L().maxPhotos);
+      for (const f of files.slice(0, Math.max(room, 0))) {
+        const u = await new Promise(r => kucult(f, r));
+        if (u) fotos.push(u); else toast('Fotoğraf yüklenemedi.');
+      }
+      renderPv();
+    });
+
+    const kucult = (file, cb) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const im = new Image();
+        im.onload = () => {
+          const k = Math.min(1, 900 / Math.max(im.width, im.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(im.width * k);
+          c.height = Math.round(im.height * k);
+          c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+          cb(c.toDataURL('image/jpeg', .78));
+        };
+        im.onerror = () => cb('');
+        im.src = r.result;
+      };
+      r.onerror = () => cb('');
+      r.readAsDataURL(file);
+    };
+
+    if (state.curUser && state.token && !state.refresh && jwtExp(state.token) && jwtExp(state.token) < Date.now()) sessionExpired();
+    render();
+    syncListings();
+    syncReviews();
+    loadProfile(getMe());
+
+    // PWA: uygulama gibi kurulabilsin
+    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; if (tab == 'prof') render(); });
+    window.addEventListener('appinstalled', () => { deferredInstall = null; if (tab == 'prof') render(); });
+  </script>
+</body>
+</html>
