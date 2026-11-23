@@ -16,7 +16,7 @@
 - Favorilere ekleme, liste/ızgara görünümü, karanlık/açık tema ve çoklu dil (`Türkçe`, `İngilizce`, `Arapça`) desteği
 
 ## Proje Yapısı
-- `UniGo Mvp.html`: Tek dosyalık istemci arayüzü ve uygulama mantığı
+- `UniGO Mvp.html`: Tek dosyalık istemci arayüzü ve uygulama mantığı
 
 - `docs/`: Analiz, süreç, gereksinim, test, mühendislik ve izlenebilirlik dokümanları
 
