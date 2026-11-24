@@ -104,7 +104,11 @@
     .btn.g { background: var(--card); color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
     .btn.sm { min-height: 36px; padding: 0 12px; font-size: 13px; border-radius: 10px; }
     .btn.danger { background: var(--hotBg); color: var(--hot); border: 1px solid rgba(225,29,72,.25); box-shadow: none; }
-    .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 5px 0; }
+    .chips { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; padding: 6px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .chips::-webkit-scrollbar { display: none; }
+    .filter-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; padding: 8px 10px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+    .filter-scroll { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .filter-scroll::-webkit-scrollbar { display: none; }
     .chip {
       min-height: 34px; padding: 0 11px; border-radius: 20px; border: 1px solid var(--line);
       background: var(--card); color: var(--ink); font: 600 12.5px var(--f); cursor: pointer;
@@ -1242,7 +1246,6 @@
     let reviews = [], campusOnly = false, deferredInstall = null;
     let authMode = 'login', otpReason = 'signup', otpVerifyType = 'signup';
     let otpCooldownEnd = 0, otpTimer = null;
-    let trCache = {}, trBusy = {}, loading = false;
 
     try {
       const t = localStorage.getItem('unigo_theme');
@@ -1317,14 +1320,12 @@
           sv();
           render();
         } else if (u.bolum || u.sinif || u.iletisim) {
-          saveProfile(u); // bu telefondaki eski bilgiyi buluta taşı
+          saveProfile(u);
         }
       } catch (e) {}
     }
 
     async function syncListings() {
-      loading = true;
-      render();
       try {
         const res = await fetch(`${sbBase()}/rest/v1/unigo_listings?select=*&order=created_at.desc`, {
           headers: sbHeaders(false)
@@ -1356,7 +1357,6 @@
           sv();
         }
       } catch (e) {}
-      loading = false;
       render();
     }
 
@@ -1469,68 +1469,38 @@
       return '';
     }
 
-    function updateResendButton() {
+    function syncResendBtn() {
       const btn = $('resend-btn');
       if (!btn) return;
       const rem = Math.max(0, Math.ceil((otpCooldownEnd - Date.now()) / 1000));
-      if (rem > 0) {
-        btn.disabled = true;
-        btn.textContent = `${L().otpResend} (${rem}s)`;
-      } else {
-        btn.disabled = false;
-        btn.textContent = L().otpResend;
-        if (otpTimer) {
-          clearInterval(otpTimer);
-          otpTimer = null;
-        }
-      }
+      btn.disabled = rem > 0;
+      btn.textContent = rem > 0 ? `${L().otpResend} (${rem}s)` : L().otpResend;
+      if (rem <= 0 && otpTimer) { clearInterval(otpTimer); otpTimer = null; }
     }
 
     function startOtpCooldown() {
       otpCooldownEnd = Date.now() + 60000;
-      if (otpTimer) clearInterval(otpTimer);
+      clearInterval(otpTimer);
       otpTimer = setInterval(() => {
-        if ($('modal').hidden || !$('resend-btn')) {
-          clearInterval(otpTimer);
-          otpTimer = null;
-          return;
-        }
-        updateResendButton();
+        if ($('modal').hidden || !$('resend-btn')) { clearInterval(otpTimer); otpTimer = null; return; }
+        syncResendBtn();
       }, 1000);
-      updateResendButton();
+      syncResendBtn();
     }
 
     async function sendOtpCode(email, reason = 'signup') {
       otpReason = reason;
-      if (Date.now() < otpCooldownEnd) {
-        openOtpModal();
-        return;
-      }
-
       openOtpModal();
-      startOtpCooldown();
+      if (Date.now() >= otpCooldownEnd) startOtpCooldown();
       const err = $('otp-err');
       if (err) err.textContent = '';
-
       try {
-        let res;
-        if (otpVerifyType === 'signup') {
-          res = await fetch(`${sbBase()}/auth/v1/resend`, {
-            method: 'POST',
-            headers: sbHeaders(false),
-            body: JSON.stringify({ type: 'signup', email })
-          });
-        } else {
-          res = await fetch(`${sbBase()}/auth/v1/otp`, {
-            method: 'POST',
-            headers: sbHeaders(false),
-            body: JSON.stringify({ email, create_user: false })
-          });
-        }
-
+        const endpoint = otpVerifyType === 'signup' ? '/auth/v1/resend' : '/auth/v1/otp';
+        const payload = otpVerifyType === 'signup' ? { type: 'signup', email } : { email, create_user: false };
+        const res = await fetch(`${sbBase()}${endpoint}`, { method: 'POST', headers: sbHeaders(false), body: JSON.stringify(payload) });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          if (err) err.textContent = data.msg || data.message || data.error_description || 'E-posta gönderilemedi (Supabase limit veya ayar hatası).';
+          if (err) err.textContent = data.msg || data.message || data.error_description || 'Kod gönderilemedi.';
         } else {
           toast(L().t_codeSent);
         }
@@ -1583,7 +1553,7 @@
         </div>
       </div>`;
       m.hidden = false;
-      updateResendButton();
+      syncResendBtn();
     }
 
     function requireVerifiedStudent(onSuccess) {
@@ -1603,43 +1573,8 @@
       return true;
     }
 
-    async function translateItem(id) {
-      const x = state.ilanlar.find(y => y.id == id);
-      if (!x) return;
-      const key = id + '_' + lang;
-      if (trCache[key]) {
-        trCache[key].show = !trCache[key].show;
-        render();
-        if (!$('modal').hidden) openModal(id, false);
-        return;
-      }
-      trBusy[id] = true;
-      render();
-      if (!$('modal').hidden) openModal(id, false);
-      try {
-        const text = x.baslik + (x.acik ? '\n---\n' + x.acik : '');
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${lang}&dt=t&q=${encodeURIComponent(text)}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const full = data[0].map(s => s[0]).join('');
-        const parts = full.split(/\n---\n/);
-        trCache[key] = { baslik: parts[0] || x.baslik, acik: parts[1] || '', show: true };
-      } catch (e) {
-        toast(L().t_trErr);
-      }
-      trBusy[id] = false;
-      render();
-      if (!$('modal').hidden) openModal(id, false);
-    }
-
-    function getDisplay(x) {
-      const c = trCache[x.id + '_' + lang];
-      if (c && c.show) return { baslik: c.baslik, acik: c.acik, isTr: true };
-      return { baslik: x.baslik, acik: x.acik, isTr: false };
-    }
-
     function card(x) {
-      const d = L(), disp = getDisplay(x), cm = CAT_META[x.kat] || CAT_META['Diğer'], u = getMe();
+      const d = L(), cm = CAT_META[x.kat] || CAT_META['Diğer'], u = getMe();
       const m = eslesen(x).length;
       const p = /^\d+$/.test(x.fiyat) ? (+x.fiyat ? x.fiyat + ' ₺' : d.free) : esc(x.fiyat);
       const h = iletisimLink(x.iletisim);
@@ -1659,16 +1594,16 @@
           </div>
           <div class="clk" data-a="detay" data-i="${esc(x.id)}">
             ${x.foto
-              ? `<img class="foto" src="${esc(x.foto)}" alt="${esc(disp.baslik)}">`
+              ? `<img class="foto" src="${esc(x.foto)}" alt="${esc(x.baslik)}">`
               : `<div class="cover" style="background:${cm.bg}">${cm.ic}<span>${esc(d.cats[x.kat] || x.kat)}</span></div>`}
-            <div style="margin-top:8px;font-weight:700;font-size:15px">${esc(disp.baslik)}</div>
+            <div style="margin-top:8px;font-weight:700;font-size:15px">${esc(x.baslik)}</div>
             <div class="row" style="margin-top:4px;gap:5px">
               <span class="price">${p}</span>
               ${(x.fotolar || []).length > 1 ? `<span class="tag">📷 ${x.fotolar.length}</span>` : ''}
               ${x.takas ? `<span class="tag ok">${esc(d.takas)}</span>` : ''}
               ${x.pazarlik ? `<span class="tag warn hide-g">${esc(d.pazarlik)}</span>` : ''}
             </div>
-            ${disp.acik ? `<div class="mut hide-g" style="margin-top:4px">${esc(disp.acik.length > 85 ? disp.acik.slice(0, 85) + '…' : disp.acik)}</div>` : ''}
+            ${x.acik ? `<div class="mut hide-g" style="margin-top:4px">${esc(x.acik.length > 85 ? x.acik.slice(0, 85) + '…' : x.acik)}</div>` : ''}
           </div>
         </div>
         <div>
@@ -1678,7 +1613,6 @@
           </div>
           <div class="row hide-g" style="margin-top:8px">
             ${h && !x.durum ? `<a class="chip" href="${esc(h)}" target="_blank" rel="noopener">${esc(d.contact)}</a>` : ''}
-            <button class="chip" data-a="trItem" data-i="${esc(x.id)}">${trBusy[x.id] ? d.translating : (disp.isTr ? d.orig : d.translate)}</button>
             ${m ? `<button class="chip" data-a="esl" data-i="${esc(x.id)}">🔗 ${m}</button>` : ''}
             ${sahip ? `
               <button class="chip" data-a="duzenle" data-i="${esc(x.id)}">${esc(d.edit)}</button>
@@ -1691,9 +1625,6 @@
     }
 
     function list() {
-      if (loading && !state.ilanlar.length) {
-        return `<div class="card"><p class="mut" style="margin:0;text-align:center">⏳ İlanlar yükleniyor...</p></div>`;
-      }
       let Lst = state.ilanlar.filter(aktif);
       if (esl) {
         const x = state.ilanlar.find(y => y.id == esl);
@@ -1758,8 +1689,8 @@
       <input id="q" type="search" value="${esc(q)}" placeholder="🔍 ${esc(d.searchPh)}" style="margin-top:0">
       ${chips(['Tümü', ...TYPES], tur, 'tur', d.types)}
       ${chips(['Tümü', ...CATS], cat, 'cat', d.cats)}
-      <div class="row between" style="margin-top:4px">
-        <div class="row" style="gap:5px">
+      <div class="filter-bar">
+        <div class="filter-scroll">
           <button class="chip${campusOnly ? ' on' : ''}" data-a="campus">🎓 ${esc(u && uniOf(u.email) ? uniName(uniOf(u.email)) : d.campusOnly)}</button>
           <button class="chip${fTag == 'takas' ? ' on' : ''}" data-a="fTag" data-i="takas">${esc(d.takasOnly)}</button>
           <button class="chip${fTag == 'free' ? ' on' : ''}" data-a="fTag" data-i="free">${esc(d.freeOnly)}</button>
@@ -1932,7 +1863,7 @@
           body: JSON.stringify({ p_id: String(id) })
         }).catch(() => {});
       }
-      const d = L(), disp = getDisplay(x), cm = CAT_META[x.kat] || CAT_META['Diğer'], u = getMe();
+      const d = L(), cm = CAT_META[x.kat] || CAT_META['Diğer'], u = getMe();
       const sahip = u && x.sahip == u.id;
       const p = /^\d+$/.test(x.fiyat) ? (+x.fiyat ? x.fiyat + ' ₺' : d.free) : esc(x.fiyat);
       const h = iletisimLink(x.iletisim);
@@ -1966,19 +1897,18 @@
             ${x.pazarlik ? `<span class="tag warn">${esc(d.pazarlik)}</span>` : ''}
           </div>
           <div class="row" style="gap:5px">
-            <button class="chip" data-a="trItem" data-i="${esc(x.id)}">${trBusy[x.id] ? d.translating : (disp.isTr ? d.orig : d.translate)}</button>
             <button class="chip" data-a="closeModal">${esc(d.close)}</button>
           </div>
         </div>
-        <h2 style="font-size:20px;margin-bottom:4px">${esc(disp.baslik)}</h2>
+        <h2 style="font-size:20px;margin-bottom:4px">${esc(x.baslik)}</h2>
         <div class="row between" style="margin-bottom:8px">
           <div style="font-size:22px;font-weight:900;color:var(--acc)">${p}</div>
           <span class="mut">👁️ ${x.goruntuleme || 1} ${esc(d.views)}</span>
         </div>
         ${fl.length
-          ? `<img id="gmain" class="foto" src="${esc(fl[0])}" alt="${esc(disp.baslik)}" style="margin-bottom:${fl.length > 1 ? 6 : 10}px">${fl.length > 1 ? `<div class="thumbs">${fl.map((src, k) => `<img class="${k == 0 ? 'on' : ''}" src="${esc(src)}" data-a="gfoto" data-i="${esc(src)}" alt="">`).join('')}</div>` : ''}`
+          ? `<img id="gmain" class="foto" src="${esc(fl[0])}" alt="${esc(x.baslik)}" style="margin-bottom:${fl.length > 1 ? 6 : 10}px">${fl.length > 1 ? `<div class="thumbs">${fl.map((src, k) => `<img class="${k == 0 ? 'on' : ''}" src="${esc(src)}" data-a="gfoto" data-i="${esc(src)}" alt="">`).join('')}</div>` : ''}`
           : `<div class="cover" style="background:${cm.bg};height:110px;margin-bottom:10px">${cm.ic}</div>`}
-        <p style="margin:8px 0;white-space:pre-line">${esc(disp.acik || d.noDesc)}</p>
+        <p style="margin:8px 0;white-space:pre-line">${esc(x.acik || d.noDesc)}</p>
         <div class="card" style="background:var(--card2);margin-top:12px">
           <div class="row between">
             <div>
@@ -2061,7 +1991,6 @@
       else if (a == 'logout') { state.curUser = ''; state.token = ''; state.refresh = ''; sv(); tab = 'paz'; toast(d.t_logout); }
       else if (a == 'grid') { grid = !grid; }
       else if (a == 'lang') { lang = LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]; try { localStorage.setItem('unigo_lang', lang); } catch (e) {} applyLangDir(); }
-      else if (a == 'trItem') { translateItem(i); return; }
       else if (a == 'ptab') { ptab = i; profEditing = false; }
       else if (a == 'editProfBtn') { profEditing = true; }
       else if (a == 'tur') tur = i;
@@ -2164,8 +2093,7 @@
               btn.disabled = false;
               return;
             }
-            // Supabase: mail zaten kayıtlıysa hata vermez, identities boş döner
-            const su = data.user || data;
+                  const su = data.user || data;
             if (su && Array.isArray(su.identities) && su.identities.length === 0) {
               toast(d.e_taken);
               openAuthModal('login');
@@ -2509,7 +2437,6 @@
     syncReviews();
     loadProfile(getMe());
 
-    // PWA: uygulama gibi kurulabilsin
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
@@ -2518,4 +2445,3 @@
   </script>
 </body>
 </html>
- 
